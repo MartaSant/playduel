@@ -31,7 +31,8 @@ export default function TermsPage() {
         <p>
           La Morra cinese è al meglio di 3 round e può finire a 2 vittorie. Una
           mano non scelta in tempo perde il round. Negli altri giochi il turno
-          scaduto chiude la partita. L&apos;abbandono assegna la vittoria
+          scaduto passa all&apos;altro giocatore, senza aggiungere una mossa.
+          L&apos;abbandono assegna la vittoria
           all&apos;altro giocatore. Le regole applicate sono quelle del server.
         </p>
         <p>
