@@ -10,6 +10,7 @@ import {
   playMove,
   requestRematch,
 } from "@/server/services/matches";
+import { noteAccess } from "@/server/services/access";
 
 export async function enqueueAction(
   _previous: MatchResult | null,
@@ -20,6 +21,9 @@ export async function enqueueAction(
     return { ok: false, reason: "invalid_game" };
   }
   const result = await enqueue(slug);
+  if (result.ok) {
+    await noteAccess("enqueue", { game: slug });
+  }
   if (result.ok && "matchId" in result) {
     redirect(`/match/${result.matchId}`);
   }
@@ -47,17 +51,28 @@ export async function playMoveAction(
   }
   const cell = integer(formData, "cell");
   if (cell !== null) {
-    return playMove(matchId, { cell });
+    return finishPlay(matchId, { cell });
   }
   const column = integer(formData, "column");
   if (column !== null) {
-    return playMove(matchId, { column });
+    return finishPlay(matchId, { column });
   }
   const hand = text(formData, "hand");
   if (hand === "rock" || hand === "paper" || hand === "scissors") {
-    return playMove(matchId, { hand });
+    return finishPlay(matchId, { hand });
   }
   return { ok: false, reason: "invalid_move" };
+}
+
+async function finishPlay(
+  matchId: string,
+  intent: { cell: number } | { column: number } | { hand: string },
+): Promise<MatchResult> {
+  const result = await playMove(matchId, intent);
+  if (result.ok) {
+    await noteAccess("play", { matchId });
+  }
+  return result;
 }
 
 export async function abandonMatchAction(
@@ -68,7 +83,11 @@ export async function abandonMatchAction(
   if (!isMatchId(matchId)) {
     return { ok: false, reason: "not_found" };
   }
-  return abandonMatch(matchId);
+  const result = await abandonMatch(matchId);
+  if (result.ok) {
+    await noteAccess("abandon", { matchId });
+  }
+  return result;
 }
 
 export async function rematchAction(

@@ -5,6 +5,7 @@ import { adminFailureMessage } from "@/lib/admin/messages";
 import { isConfirmed } from "@/lib/admin/rules";
 import { isMatchId } from "@/lib/matches/rules";
 import { createClient } from "@/lib/supabase/server";
+import { noteAccess } from "@/server/services/access";
 import {
   decideReport,
   fileReport,
@@ -162,6 +163,7 @@ export async function fileReportAction(
   if (!result.ok) {
     return { ok: false, message: adminFailureMessage[result.reason] };
   }
+  await noteAccess("report", { matchId });
   return result;
 }
 

@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { NicknameForm } from "@/components/players/nickname-form";
 import { safeRoomNext } from "@/lib/rooms/rules";
 import { getSupabasePublicEnv } from "@/lib/supabase/env";
+import { noteAccess } from "@/server/services/access";
 import { readOwnProfile } from "@/server/services/profile";
 
 export const metadata: Metadata = {
@@ -50,6 +51,7 @@ async function PlainProfile({
   searchParams: Promise<{ next?: string | string[] }>;
 }) {
   const { next } = await searchParams;
+  await noteAccess("visit");
   return (
     <NicknameForm
       nickname=""
@@ -67,6 +69,7 @@ async function ConfiguredProfile({
   const [{ next }, profile] = await Promise.all([
     searchParams,
     readOwnProfile(),
+    noteAccess("visit"),
   ]);
   return (
     <>

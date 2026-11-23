@@ -224,6 +224,85 @@ export function parseAdminAudit(
   return { ok: true, entries };
 }
 
+export type AccessAddress = {
+  ip: string;
+  events: number;
+  plays: number;
+  lastSeen: string;
+  nicknames: string[];
+  games: string[];
+  hasSanction: boolean;
+};
+
+export type AccessEvent = {
+  ip: string;
+  action: string;
+  gameSlug: string | null;
+  matchId: string | null;
+  createdAt: string;
+  nickname: string | null;
+  banned: boolean;
+};
+
+export function parseAdminAccess(
+  value: unknown,
+): { ok: true; addresses: AccessAddress[]; events: AccessEvent[] } | AdminFailure {
+  if (!isRecord(value) || value.ok !== true || !Array.isArray(value.addresses) || !Array.isArray(value.events)) {
+    return failure(isRecord(value) ? value.reason : null);
+  }
+  const addresses: AccessAddress[] = [];
+  for (const item of value.addresses) {
+    const nicknames = readStrings(isRecord(item) ? item.nicknames : null);
+    const games = readStrings(isRecord(item) ? item.games : null);
+    if (
+      !isRecord(item) ||
+      typeof item.ip !== "string" ||
+      !isCount(item.events) ||
+      !isCount(item.plays) ||
+      typeof item.lastSeen !== "string" ||
+      nicknames === null ||
+      games === null ||
+      typeof item.hasSanction !== "boolean"
+    ) {
+      return { ok: false, reason: "unavailable" };
+    }
+    addresses.push({
+      ip: item.ip,
+      events: item.events,
+      plays: item.plays,
+      lastSeen: item.lastSeen,
+      nicknames,
+      games,
+      hasSanction: item.hasSanction,
+    });
+  }
+  const events: AccessEvent[] = [];
+  for (const item of value.events) {
+    if (
+      !isRecord(item) ||
+      typeof item.ip !== "string" ||
+      typeof item.action !== "string" ||
+      (item.gameSlug !== null && typeof item.gameSlug !== "string") ||
+      (item.matchId !== null && typeof item.matchId !== "string") ||
+      typeof item.createdAt !== "string" ||
+      (item.nickname !== null && typeof item.nickname !== "string") ||
+      typeof item.banned !== "boolean"
+    ) {
+      return { ok: false, reason: "unavailable" };
+    }
+    events.push({
+      ip: item.ip,
+      action: item.action,
+      gameSlug: item.gameSlug,
+      matchId: item.matchId,
+      createdAt: item.createdAt,
+      nickname: item.nickname,
+      banned: item.banned,
+    });
+  }
+  return { ok: true, addresses, events };
+}
+
 export function parseReportResult(value: unknown): { ok: true } | AdminFailure {
   if (isRecord(value) && value.ok === true) {
     return { ok: true };
@@ -261,6 +340,13 @@ function readSanctions(value: unknown): AdminSanction[] | null {
     });
   }
   return sanctions;
+}
+
+function readStrings(value: unknown): string[] | null {
+  if (!Array.isArray(value) || !value.every((item) => typeof item === "string")) {
+    return null;
+  }
+  return value;
 }
 
 function isCount(value: unknown): value is number {

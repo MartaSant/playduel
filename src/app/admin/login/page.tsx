@@ -35,7 +35,7 @@ async function LoginScreen() {
       <h1 className="text-3xl font-semibold tracking-tight">Amministrazione</h1>
       <p className="mt-4 max-w-xl text-lg leading-8 text-muted">
         Accesso separato dai giocatori. Dopo la password serve un codice
-        dall&apos;app di autenticazione. Gli indirizzi IP non vengono raccolti.
+        dall&apos;app di autenticazione. Gli indirizzi IP si vedono solo qui, dopo l&apos;accesso.
       </p>
       <AdminLoginForm />
     </main>

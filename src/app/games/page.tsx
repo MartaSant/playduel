@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { GameCard } from "@/components/games/game-card";
+import { AccessNote } from "@/components/security/access-note";
 import { games } from "@/lib/games";
 
 export const metadata: Metadata = {
@@ -10,6 +12,9 @@ export const metadata: Metadata = {
 export default function GamesPage() {
   return (
     <main className="mx-auto w-full max-w-5xl px-4 py-10 sm:py-16">
+      <Suspense fallback={null}>
+        <AccessNote action="visit" />
+      </Suspense>
       <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
         Scegli la sfida
       </h1>

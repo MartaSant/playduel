@@ -2,7 +2,7 @@
 
 Piattaforma web di minigiochi multiplayer nel browser. L'obiettivo è una sfida rapida senza registrazione tradizionale: nickname temporaneo, matchmaking casuale e stanze private condivise con un link.
 
-Questa repository è alla **Milestone 7**. Il gioco e l'amministrazione sono collegati al progetto Supabase. Il sito non è pubblicato: mancano dominio, backup verificati e revisione legale. Gli indirizzi IP non sono raccolti.
+Questa repository è alla **Milestone 7**. Il gioco e l'amministrazione sono collegati al progetto Supabase. Il sito non è pubblicato: mancano dominio, backup verificati e revisione legale. Gli indirizzi IP sono visibili solo nell'amministrazione, per gli abusi. Non ci sono ban automatici per IP.
 
 ## Stack
 

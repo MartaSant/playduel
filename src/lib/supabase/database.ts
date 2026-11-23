@@ -122,6 +122,19 @@ export type Database = {
         Args: { p_match: string; p_reason: string };
         Returns: Json;
       };
+      log_access: {
+        Args: {
+          p_ip: string;
+          p_action: string;
+          p_game: string;
+          p_match: string | null;
+        };
+        Returns: undefined;
+      };
+      admin_access: {
+        Args: { p_query: string };
+        Returns: Json;
+      };
     };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;

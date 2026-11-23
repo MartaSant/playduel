@@ -1,10 +1,13 @@
 import {
+  parseAdminAccess,
   parseAdminAudit,
   parseAdminGate,
   parseAdminOverview,
   parseAdminReports,
   parseAdminSearch,
   parseReportResult,
+  type AccessAddress,
+  type AccessEvent,
   type AdminAuditEntry,
   type AdminFailure,
   type AdminGate,
@@ -33,6 +36,15 @@ export async function searchAdmin(query: string): Promise<AdminSearch | AdminFai
 
 export async function readAdminReports(): Promise<{ ok: true; reports: AdminReport[] } | AdminFailure> {
   return callAdmin((supabase) => supabase.rpc("admin_reports"), parseAdminReports);
+}
+
+export async function readAdminAccess(
+  query: string,
+): Promise<{ ok: true; addresses: AccessAddress[]; events: AccessEvent[] } | AdminFailure> {
+  return callAdmin(
+    (supabase) => supabase.rpc("admin_access", { p_query: query.slice(0, 64) }),
+    parseAdminAccess,
+  );
 }
 
 export async function readAdminAudit(): Promise<{ ok: true; entries: AdminAuditEntry[] } | AdminFailure> {

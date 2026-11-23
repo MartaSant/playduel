@@ -9,16 +9,12 @@ import {
   type ConnectFourRejection,
   type ConnectFourState,
 } from "@/game-logic/connect-four/rules";
+import { Disc } from "@/components/games/marks";
 import { Button } from "@/components/ui/button";
 
 const PLAYER_LABEL: Record<ConnectFourPlayer, string> = {
   red: "Rosso",
   yellow: "Giallo",
-};
-
-const DISC_MARK: Record<ConnectFourPlayer, string> = {
-  red: "R",
-  yellow: "G",
 };
 
 const REJECTION: Record<ConnectFourRejection, string> = {
@@ -57,15 +53,15 @@ export function ConnectFourMatch() {
         {status}
       </p>
       <p className="mt-2 text-sm text-muted">
-        Rosso gioca con R, Giallo con G. Il gettone cade nella casella libera
-        più bassa.
+        Il gettone cade nella casella libera più bassa.
       </p>
       {notice ? (
         <p role="alert" className="mt-2 text-muted">
           {notice}
         </p>
       ) : null}
-      <div className="mt-6 grid max-w-md grid-cols-7 gap-1">
+      <div className="mt-6 grid max-w-md grid-cols-7 gap-2 rounded-3xl border border-line bg-[#16325c] p-3">
+        <div className="col-span-7 grid grid-cols-7 gap-2">
         {state.columns.map((column, index) => {
           const full = column.every((cell) => cell !== null);
           return (
@@ -75,14 +71,17 @@ export function ConnectFourMatch() {
               disabled={state.status !== "playing" || full}
               onClick={() => drop(index)}
               aria-label={`Inserisci nella colonna ${index + 1}`}
-              className="min-h-11 rounded-lg border border-line bg-card text-sm font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:cursor-not-allowed disabled:opacity-40"
+              className="flex min-h-11 items-center justify-center rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:cursor-not-allowed disabled:opacity-40"
             >
-              {index + 1}
+              <span className="sr-only">Colonna {index + 1}</span>
+              <span className="block h-6 w-6">
+                <Disc color={state.status === "playing" && !full ? state.turn : null} />
+              </span>
             </button>
           );
         })}
-      </div>
-      <div className="mt-2 grid max-w-md grid-cols-7 gap-1">
+        </div>
+        <div className="col-span-7 grid grid-cols-7 gap-2">
         {Array.from({ length: CONNECT_FOUR_ROWS }, (_, offset) => {
           const row = CONNECT_FOUR_ROWS - 1 - offset;
           return state.columns.map((column, columnIndex) => {
@@ -99,13 +98,14 @@ export function ConnectFourMatch() {
                     ? `${PLAYER_LABEL[disc]}, riga ${row + 1}, colonna ${columnIndex + 1}`
                     : `Vuota, riga ${row + 1}, colonna ${columnIndex + 1}`
                 }
-                className={`flex aspect-square items-center justify-center rounded-full border text-sm font-bold ${disc === "red" ? "border-[#d23b4a] bg-[#d23b4a] text-white" : ""} ${disc === "yellow" ? "border-[#f2c14e] bg-[#f2c14e] text-[#1a1404]" : ""} ${disc === null ? "border-line bg-background text-transparent" : ""} ${winning ? "outline outline-2 outline-offset-2 outline-white" : ""}`}
+                className={`flex aspect-square items-center justify-center rounded-full ${winning ? "bg-white/20" : ""}`}
               >
-                {disc ? DISC_MARK[disc] : "·"}
+                <Disc color={disc} />
               </div>
             );
           });
         })}
+        </div>
       </div>
       <div className="mt-6">
         <Button

@@ -8,6 +8,7 @@ import {
   type TicTacToeRejection,
   type TicTacToeState,
 } from "@/game-logic/tic-tac-toe/rules";
+import { TicMark } from "@/components/games/marks";
 import { Button } from "@/components/ui/button";
 
 const PLAYER_LABEL: Record<TicTacToePlayer, string> = {
@@ -53,7 +54,7 @@ export function TicTacToeMatch() {
           {notice}
         </p>
       ) : null}
-      <div className="mt-6 grid max-w-xs grid-cols-3 gap-2">
+      <div className="mt-6 grid max-w-sm grid-cols-3 gap-3 rounded-3xl border border-line bg-[#0c1224] p-3">
         {state.board.map((cell, index) => {
           const winning = state.winningLine?.includes(index) ?? false;
           const row = Math.floor(index / 3) + 1;
@@ -65,9 +66,9 @@ export function TicTacToeMatch() {
               disabled={cell !== null || state.status !== "playing"}
               onClick={() => play(index)}
               aria-label={`Riga ${row}, colonna ${column}${cell ? `, ${cell}` : ", vuota"}`}
-              className={`flex aspect-square items-center justify-center rounded-xl border text-3xl font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:cursor-not-allowed ${winning ? "border-white bg-white/10" : "border-line bg-card"}`}
+              className={`flex aspect-square items-center justify-center rounded-2xl border focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:cursor-not-allowed ${winning ? "border-accent-2 bg-accent/30" : "border-line bg-card enabled:hover:border-accent-2"}`}
             >
-              {cell}
+              <TicMark mark={cell} />
             </button>
           );
         })}

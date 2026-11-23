@@ -47,6 +47,9 @@ async function Dashboard({
         <Link href="/admin/audit" className="underline underline-offset-4">
           Registro
         </Link>
+        <Link href="/admin/access" className="underline underline-offset-4">
+          Accessi
+        </Link>
       </nav>
       {!overview.ok ? (
         <p role="alert" className="mt-6">{adminFailureMessage[overview.reason]}</p>

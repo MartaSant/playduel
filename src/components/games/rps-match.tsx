@@ -14,6 +14,7 @@ import {
   type RpsHand,
   type RpsState,
 } from "@/game-logic/rock-paper-scissors/rules";
+import { HandMark } from "@/components/games/marks";
 import { Button } from "@/components/ui/button";
 
 const HAND_LABEL: Record<RpsHand, string> = {
@@ -101,8 +102,9 @@ export function RpsMatch() {
       {state.status === "choosing" && !handoff ? (
         <div className="mt-6 flex flex-col gap-3 sm:flex-row">
           {RPS_HANDS.map((hand) => (
-            <Button key={hand} onClick={() => pick(hand)}>
-              {picking === "A" ? "A" : "B"}: {HAND_LABEL[hand]}
+            <Button key={hand} className="min-w-28 flex-col gap-1 py-3" onClick={() => pick(hand)}>
+              <HandMark hand={hand} />
+              {HAND_LABEL[hand]}
             </Button>
           ))}
         </div>

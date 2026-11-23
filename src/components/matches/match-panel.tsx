@@ -22,6 +22,7 @@ import {
   rematchAction,
 } from "@/server/actions/matches";
 import { ReportForm } from "@/components/admin/report-form";
+import { Disc, HandMark, TicMark } from "@/components/games/marks";
 import { Button } from "@/components/ui/button";
 
 const HAND_LABEL: Record<RpsHand, string> = {
@@ -182,7 +183,7 @@ function TrisBoard({
   const state = snapshot.state;
   const mine = snapshot.yourSeat === state.turn && snapshot.status === "playing";
   return (
-    <form action={action} className="grid max-w-xs grid-cols-3 gap-2">
+    <form action={action} className="grid max-w-sm grid-cols-3 gap-3 rounded-3xl border border-line bg-[#0c1224] p-3">
       <input type="hidden" name="matchId" value={snapshot.matchId} />
       {state.board.map((cell, index) => {
         const winning = state.winningLine?.includes(index) ?? false;
@@ -194,9 +195,9 @@ function TrisBoard({
             value={index}
             disabled={!mine || cell !== null || pending}
             aria-label={`Riga ${Math.floor(index / 3) + 1}, colonna ${(index % 3) + 1}${cell ? `, ${cell}` : ", vuota"}`}
-            className={`flex aspect-square items-center justify-center rounded-xl border text-3xl font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:cursor-not-allowed ${winning ? "border-white bg-white/10" : "border-line bg-card"}`}
+            className={`flex aspect-square items-center justify-center rounded-2xl border focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:cursor-not-allowed ${winning ? "border-accent-2 bg-accent/30" : "border-line bg-card enabled:hover:border-accent-2"}`}
           >
-            {cell}
+            <TicMark mark={cell} />
           </button>
         );
       })}
@@ -219,23 +220,30 @@ function ConnectFourBoard({
   const state = snapshot.state;
   const mine = snapshot.yourSeat === state.turn && snapshot.status === "playing";
   return (
-    <div>
-      <form action={action} className="grid max-w-md grid-cols-7 gap-1">
+    <div className="max-w-md rounded-3xl border border-line bg-[#16325c] p-3">
+      <form action={action} className="grid grid-cols-7 gap-2">
         <input type="hidden" name="matchId" value={snapshot.matchId} />
-        {state.columns.map((_, index) => (
+        {state.columns.map((column, index) => (
           <button
             key={index}
             type="submit"
             name="column"
             value={index}
-            disabled={!mine || pending}
-            className="min-h-11 rounded-full border border-line text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-40"
+            disabled={!mine || pending || column.every((cell) => cell !== null)}
+            aria-label={`Inserisci nella colonna ${index + 1}`}
+            className="flex min-h-11 items-center justify-center rounded-full disabled:cursor-not-allowed disabled:opacity-40"
           >
-            {index + 1}
+            <span className="block h-6 w-6">
+              <Disc
+                color={
+                  mine && !column.every((cell) => cell !== null) ? state.turn : null
+                }
+              />
+            </span>
           </button>
         ))}
       </form>
-      <div className="mt-2 grid max-w-md grid-cols-7 gap-1">
+      <div className="mt-2 grid grid-cols-7 gap-2">
         {Array.from({ length: CONNECT_FOUR_ROWS }, (_, offset) => {
           const row = CONNECT_FOUR_ROWS - 1 - offset;
           return state.columns.map((column, columnIndex) => {
@@ -252,9 +260,9 @@ function ConnectFourBoard({
                     ? `${disc === "red" ? "Rosso" : "Giallo"}, riga ${row + 1}, colonna ${columnIndex + 1}`
                     : `Vuota, riga ${row + 1}, colonna ${columnIndex + 1}`
                 }
-                className={`flex aspect-square items-center justify-center rounded-full border text-sm font-bold ${disc === "red" ? "border-[#d23b4a] bg-[#d23b4a] text-white" : ""} ${disc === "yellow" ? "border-[#f2c14e] bg-[#f2c14e] text-[#1a1404]" : ""} ${disc === null ? "border-line bg-background text-transparent" : ""} ${winning ? "outline outline-2 outline-offset-2 outline-white" : ""}`}
+                className={`flex aspect-square items-center justify-center rounded-full ${winning ? "bg-white/20" : ""}`}
               >
-                {disc === "red" ? "R" : disc === "yellow" ? "G" : "·"}
+                <Disc color={disc} />
               </div>
             );
           });
@@ -307,7 +315,9 @@ function RpsBoard({
             name="hand"
             value={hand}
             disabled={!choosing || own !== null || pending}
+            className="min-w-28 flex-col gap-1 py-3"
           >
+            <HandMark hand={hand} />
             {HAND_LABEL[hand]}
           </Button>
         ))}

@@ -7,18 +7,23 @@ const migrations = readdirSync("supabase/migrations")
   .sort()
   .map((name) => readFileSync(`supabase/migrations/${name}`, "utf8"));
 
-const sql = migrations.join("\n").toLowerCase();
+const fullSql = migrations.join("\n").toLowerCase();
+const accessLog = readFileSync(
+  "supabase/migrations/20261123230000_access_log.sql",
+  "utf8",
+).toLowerCase();
+const sql = fullSql.replace(accessLog, "");
 const hardening = readFileSync(
   "supabase/migrations/20261123210000_hardening.sql",
   "utf8",
 ).toLowerCase();
 
-test("every public table has forced row level security and no application IP column", () => {
-  const tables = [...sql.matchAll(/create table public\.([a-z_]+)/g)].map((match) => match[1]);
+test("every public table has forced row level security and addresses stay in the admin log", () => {
+  const tables = [...fullSql.matchAll(/create table public\.([a-z_]+)/g)].map((match) => match[1]);
   assert.ok(tables.includes("attempt_windows"));
   for (const table of tables) {
-    assert.match(sql, new RegExp(`alter table public\\.${table} enable row level security`));
-    assert.match(sql, new RegExp(`alter table public\\.${table} force row level security`));
+    assert.match(fullSql, new RegExp(`alter table public\\.${table} enable row level security`));
+    assert.match(fullSql, new RegExp(`alter table public\\.${table} force row level security`));
   }
   assert.equal(sql.includes("inet"), false);
   assert.equal(sql.includes("ip_address"), false);

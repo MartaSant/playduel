@@ -7,6 +7,7 @@ import {
   normalizeRoomCode,
   type RoomResult,
 } from "@/lib/rooms/rules";
+import { noteAccess } from "@/server/services/access";
 import {
   createRoom,
   joinRoom,
@@ -24,6 +25,7 @@ export async function createRoomAction(
   }
   const result = await createRoom(slug);
   if (result.ok && result.access === "member") {
+    await noteAccess("create_room", { game: slug });
     redirect(`/room/${result.code}`);
   }
   return result;
@@ -39,6 +41,7 @@ export async function joinRoomAction(
   }
   const result = await joinRoom(code);
   if (result.ok && result.access === "member") {
+    await noteAccess("join_room");
     redirect(`/room/${result.code}`);
   }
   return result;

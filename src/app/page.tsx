@@ -1,10 +1,15 @@
+import { Suspense } from "react";
 import { GameCard } from "@/components/games/game-card";
+import { AccessNote } from "@/components/security/access-note";
 import { ButtonLink } from "@/components/ui/button-link";
 import { games } from "@/lib/games";
 
 export default function Home() {
   return (
     <main>
+      <Suspense fallback={null}>
+        <AccessNote action="visit" />
+      </Suspense>
       <section className="mx-auto w-full max-w-5xl px-4 py-12 sm:py-20">
         <p className="text-sm font-semibold uppercase tracking-[0.16em] text-accent-2">
           PlayDuel
@@ -16,8 +21,11 @@ export default function Home() {
           Due persone, un minigioco, nessuna registrazione tradizionale. Un
           nickname temporaneo basta per cercare una partita o aprire una stanza.
         </p>
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-          <ButtonLink href="/games">Gioca ora</ButtonLink>
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+          <ButtonLink href="/profile">Crea il nickname</ButtonLink>
+          <ButtonLink href="/games" variant="secondary">
+            Gioca ora
+          </ButtonLink>
           <ButtonLink href="/games#crea-stanza" variant="secondary">
             Crea stanza privata
           </ButtonLink>

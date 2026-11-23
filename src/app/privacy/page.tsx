@@ -21,15 +21,16 @@ export default function PrivacyPage() {
         </p>
         <p>
           Nel database restano il nickname, le stanze, le partite, le mosse, le
-          segnalazioni e i provvedimenti. L&apos;applicazione non registra
-          l&apos;indirizzo IP e non fa ban automatici per IP.
+          segnalazioni e i provvedimenti. L&apos;indirizzo IP viene letto dal
+          server e mostrato solo nell&apos;amministrazione, insieme ai giochi
+          collegati, per gestire gli abusi. Non ci sono ban automatici per IP.
         </p>
         <p>
           Una funzione di pulizia, non esposta al sito, può togliere le ricerche
           più vecchie di 2 minuti, le partite finite da oltre 30 giorni se
           nessuno le ha segnalate, e le stanze scadute da oltre 30 giorni rimaste
-          senza partite. Non cancella giocatori, segnalazioni, sanzioni né il
-          registro admin.
+          senza partite, e gli accessi più vecchi di 30 giorni. Non cancella
+          giocatori, segnalazioni, sanzioni né il registro admin.
         </p>
         <p>
           Questa pulizia non riguarda backup, log dell&apos;hosting né i

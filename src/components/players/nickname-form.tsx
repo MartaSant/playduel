@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { saveNicknameAction } from "@/server/actions/profile";
 import type { NicknameActionState } from "@/lib/validation/nickname";
 import { Button } from "@/components/ui/button";
+import { ButtonLink } from "@/components/ui/button-link";
 
 const MESSAGES: Record<
   Exclude<NicknameActionState, { ok: true }>["reason"],
@@ -34,6 +35,7 @@ export function NicknameForm({
 }: NicknameFormProps) {
   const [state, action, pending] = useActionState(saveNicknameAction, null);
   const shownNickname = state?.ok ? state.nickname : nickname;
+  const nicknameReady = state?.ok === true || nickname.length > 0;
 
   return (
     <form action={action} className="mt-6 max-w-md">
@@ -71,10 +73,15 @@ export function NicknameForm({
           nickname funziona comunque; il salvataggio no.
         </p>
       ) : null}
-      <div className="mt-4">
+      <div className="mt-4 flex flex-col gap-3 sm:flex-row">
         <Button type="submit" disabled={pending}>
           {pending ? "Salvataggio…" : "Salva nickname"}
         </Button>
+        {nicknameReady ? (
+          <ButtonLink href="/games" variant="secondary">
+            Scegli un gioco
+          </ButtonLink>
+        ) : null}
       </div>
     </form>
   );
