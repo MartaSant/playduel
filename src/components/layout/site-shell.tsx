@@ -1,15 +1,21 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { Suspense, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { ArcadeHeader } from "@/components/layout/arcade-header";
 import { SiteHeader } from "@/components/layout/site-header";
 
 export function SiteShell({ children }: { children: ReactNode }) {
-  const path = usePathname();
-  const admin = path.startsWith("/admin");
+  return (
+    <Suspense fallback={<ArcadeFrame>{children}</ArcadeFrame>}>
+      <ShellFrame>{children}</ShellFrame>
+    </Suspense>
+  );
+}
 
-  if (admin) {
+function ShellFrame({ children }: { children: ReactNode }) {
+  const path = usePathname();
+  if (path.startsWith("/admin")) {
     return (
       <>
         <SiteHeader />
@@ -19,7 +25,10 @@ export function SiteShell({ children }: { children: ReactNode }) {
       </>
     );
   }
+  return <ArcadeFrame>{children}</ArcadeFrame>;
+}
 
+function ArcadeFrame({ children }: { children: ReactNode }) {
   return (
     <>
       <ArcadeHeader />
