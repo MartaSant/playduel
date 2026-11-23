@@ -87,6 +87,14 @@ export type Database = {
         Args: { p_match: string };
         Returns: Json;
       };
+      list_match_messages: {
+        Args: { p_match: string };
+        Returns: Json;
+      };
+      send_match_message: {
+        Args: { p_match: string; p_body: string };
+        Returns: Json;
+      };
       admin_gate: {
         Args: Record<string, never>;
         Returns: Json;

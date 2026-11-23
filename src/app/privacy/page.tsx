@@ -28,8 +28,9 @@ export default function PrivacyPage() {
           con email serve solo all&apos;amministrazione ed è separato.
         </p>
         <p>
-          Nel database restano il nickname, le stanze, le partite, le mosse, le
-          segnalazioni e i provvedimenti. L&apos;indirizzo IP viene letto dal
+          Nel database restano il nickname, le stanze, le partite, le mosse, i
+          messaggi tra i due giocatori, le segnalazioni e i provvedimenti. I
+          messaggi si cancellano insieme alla partita. L&apos;indirizzo IP viene letto dal
           server e mostrato solo nell&apos;amministrazione, insieme ai giochi
           collegati, per gestire gli abusi. Non ci sono ban automatici per IP.
         </p>

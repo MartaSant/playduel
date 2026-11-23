@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { Cabinet } from "@/components/games/cabinet";
 import { CoinIcon } from "@/components/games/icons";
 import { MatchPanel } from "@/components/matches/match-panel";
+import { MatchChat } from "@/components/matches/match-chat";
 import { RoomActions } from "@/components/rooms/room-actions";
 import { ScrollToMatch } from "@/components/rooms/scroll-to-match";
 import { matchFailureMessage } from "@/lib/matches/messages";
@@ -82,13 +83,16 @@ async function RoomScreen({
   return (
     <main className="mx-auto w-full max-w-5xl px-4 py-10 sm:py-16">
       {board ? (
-        <ScrollToMatch matchId={board.matchId}>
-          <MatchPanel
-            key={`${board.matchId}-${board.version}`}
-            snapshot={board}
-            titleLevel="h1"
-          />
-        </ScrollToMatch>
+        <>
+          <ScrollToMatch matchId={board.matchId}>
+            <MatchPanel
+              key={`${board.matchId}-${board.version}`}
+              snapshot={board}
+              titleLevel="h1"
+            />
+          </ScrollToMatch>
+          <MatchChat matchId={board.matchId} />
+        </>
       ) : (
         <Cabinet
           title={game?.name ?? "Stanza"}

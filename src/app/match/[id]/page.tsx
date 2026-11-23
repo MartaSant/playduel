@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
+import { MatchChat } from "@/components/matches/match-chat";
 import { MatchPanel } from "@/components/matches/match-panel";
 import { matchFailureMessage } from "@/lib/matches/messages";
 import { isMatchId } from "@/lib/matches/rules";
@@ -64,6 +65,7 @@ async function MatchScreen({
   return (
     <main className="mx-auto w-full max-w-5xl px-4 py-10 sm:py-16">
       <MatchPanel key={`${match.matchId}-${match.version}`} snapshot={match} />
+      <MatchChat matchId={match.matchId} />
     </main>
   );
 }
