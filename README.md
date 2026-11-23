@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# PlayDuel
 
-## Getting Started
+Piattaforma web di minigiochi multiplayer nel browser. L'obiettivo è una sfida rapida senza registrazione tradizionale: nickname temporaneo, matchmaking casuale e stanze private condivise con un link.
 
-First, run the development server:
+Questa repository è alla **Milestone 0**. L'app che si avvia in locale è ancora il template di `create-next-app`. Homepage, giochi, Supabase, matchmaking e pannello admin arrivano nelle milestone successive.
+
+## Stack
+
+- Next.js (App Router) 16
+- React 19
+- TypeScript strict
+- Tailwind CSS 4
+- Supabase e Vercel sono previsti più avanti, non sono collegati in questa fase
+
+## Requisiti
+
+- Node.js 22
+- npm 11
+
+## Avvio locale
 
 ```bash
+npm install
+cp .env.example .env.local
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Su Windows, se `cp` non è disponibile:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```powershell
+Copy-Item .env.example .env.local
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Apri [http://localhost:3000](http://localhost:3000).
 
-## Learn More
+`.env.local` non va committato. I valori in `.env.example` sono segnaposto: l'applicazione non li usa finché non parte il collegamento a Supabase.
 
-To learn more about Next.js, take a look at the following resources:
+## Verifica
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm run lint
+npm run typecheck
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Non c'è ancora un test runner. I test delle regole di gioco entrano con la Milestone 2.
 
-## Deploy on Vercel
+## Struttura prevista
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Le cartelle sotto `src/` sono riservate e vuote, a parte il template in `src/app/`. Non contengono ancora logica di prodotto.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```text
+src/
+  app/                  pagine (oggi solo il template Next.js)
+  components/           layout, giochi, matchmaking, stanze, ui
+  features/             auth, players, matchmaking, rooms, matches, moderation
+  lib/                  supabase, validation, security, utils
+  server/               actions, services, repositories
+  game-logic/           tic-tac-toe, connect-four, rock-paper-scissors
+  types/
+  styles/
+```
+
+## Stato
+
+| Milestone | Contenuto | Stato |
+| --- | --- | --- |
+| 0 | Progetto locale, lint, TypeScript, README, env di esempio | completata in locale |
+| 1 | Homepage, navigazione, Privacy e Termini provvisori | non iniziata |
+| 2 | Motori di gioco e test | non iniziata |
+| 3+ | Supabase, stanze, partite, admin, lancio | non iniziate |
+
+Privacy, termini, retention e raccolta IP non sono definiti in questa fase e vanno rivisti prima di un lancio pubblico.
