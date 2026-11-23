@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { GameCard } from "@/components/games/game-card";
+import { Cabinet } from "@/components/games/cabinet";
+import { GameShelf } from "@/components/games/game-shelf";
+import { GamesIcon } from "@/components/games/icons";
 import { AccessNote } from "@/components/security/access-note";
 import { games } from "@/lib/games";
 
@@ -15,26 +17,23 @@ export default function GamesPage() {
       <Suspense fallback={null}>
         <AccessNote action="visit" />
       </Suspense>
-      <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-        Scegli la sfida
-      </h1>
-      <p className="mt-4 max-w-2xl text-lg leading-8 text-muted">
-        «Gioca online» cerca un avversario. «Crea stanza privata» apre un link
-        da condividere. «Prova in locale» fa giocare due persone sullo stesso
-        dispositivo.
-      </p>
-      <section id="crea-stanza" aria-labelledby="stanze-heading" className="mt-10">
+      <Cabinet
+        title="Giochi"
+        kicker={
+          <>
+            <span className="sr-only">Scegli la sfida</span>
+            <GamesIcon />
+          </>
+        }
+      >
         <h2 id="stanze-heading" className="sr-only">
           Modalità disponibili
         </h2>
-        <ul className="grid gap-4 md:grid-cols-3">
-          {games.map((game) => (
-            <li key={game.slug} className="scroll-mt-24">
-              <GameCard game={game} showActions />
-            </li>
-          ))}
-        </ul>
-      </section>
+        <GameShelf games={games} />
+      </Cabinet>
+      <p className="mx-auto mt-4 max-w-xl text-center text-xs leading-5 text-muted">
+        {games.map((game) => `${game.name}: ${game.coverCredit}`).join(" · ")}
+      </p>
     </main>
   );
 }

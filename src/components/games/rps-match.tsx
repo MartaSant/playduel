@@ -9,12 +9,12 @@ import {
   continueMatch,
   createRockPaperScissors,
   RPS_HANDS,
-  RPS_MAX_ROUNDS,
   RPS_ROUND_TIMEOUT_MS,
   type RpsHand,
   type RpsState,
 } from "@/game-logic/rock-paper-scissors/rules";
-import { HandMark } from "@/components/games/marks";
+import { CrownIcon, ExitIcon, PassIcon, ReplayIcon, TimerIcon } from "@/components/games/icons";
+import { HandMark, RpsGestureCredit } from "@/components/games/marks";
 import { Button } from "@/components/ui/button";
 
 const HAND_LABEL: Record<RpsHand, string> = {
@@ -73,45 +73,62 @@ export function RpsMatch() {
 
   return (
     <div>
-      <p role="status" className="text-lg font-semibold">
-        {matchStatus(state, handoff)}
-      </p>
-      <p className="mt-2 text-muted">
-        Punteggio A {state.scores.A} — B {state.scores.B}. Al meglio di{" "}
-        {RPS_MAX_ROUNDS}, primo a 2. La scelta resta nascosta finché non
-        scelgono entrambi.
-      </p>
-      {state.status === "choosing" ? (
-        <p className="mt-2 text-sm text-muted">
-          Secondi rimasti in questo round: {secondsLeft}.
-        </p>
-      ) : null}
+      <div className="arcade-score" role="status" aria-label={matchStatus(state, handoff)}>
+        <span className={picking === "A" && state.status === "choosing" && !handoff ? "arcade-score-live" : ""}>
+          A {state.scores.A}
+        </span>
+        <span className={picking === "B" && state.status === "choosing" && !handoff ? "arcade-score-live" : ""}>
+          B {state.scores.B}
+        </span>
+        {state.status === "choosing" ? (
+          <span className="arcade-timer">
+            <TimerIcon />
+            {secondsLeft}
+          </span>
+        ) : null}
+        {state.status === "won" && state.winner ? (
+          <>
+            <CrownIcon />
+            <span className="arcade-letter">{state.winner}</span>
+          </>
+        ) : null}
+      </div>
       {state.lastRound && !handoff ? (
-        <p className="mt-4 text-muted">{roundSummary(state)}</p>
+        <p className="sr-only">{roundSummary(state)}</p>
       ) : null}
+      {state.lastRound && !handoff ? <RoundMarks state={state} /> : null}
       {state.status === "choosing" && handoff ? (
-        <div className="mt-6 max-w-md rounded-2xl border border-line bg-card p-5">
-          <p>Scelta registrata. Passa il dispositivo al giocatore B.</p>
-          <div className="mt-4">
-            <Button onClick={() => setHandoff(false)}>
-              Il giocatore B sceglie
-            </Button>
-          </div>
+        <div className="arcade-panel arcade-hud">
+          <PassIcon />
+          <Button
+            className="arcade-coin arcade-icon-btn"
+            aria-label="Il giocatore B sceglie"
+            onClick={() => setHandoff(false)}
+          >
+            <span className="arcade-letter">B</span>
+          </Button>
         </div>
       ) : null}
       {state.status === "choosing" && !handoff ? (
-        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+        <div className="mt-5 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
           {RPS_HANDS.map((hand) => (
-            <Button key={hand} className="min-w-28 flex-col gap-1 py-3" onClick={() => pick(hand)}>
-              <HandMark hand={hand} />
-              {HAND_LABEL[hand]}
+            <Button
+              key={hand}
+              data-hand={hand}
+              aria-label={HAND_LABEL[hand]}
+              className="arcade-hand arcade-icon-btn"
+              onClick={() => pick(hand)}
+            >
+              <HandMark hand={hand} className="h-16 w-16" />
             </Button>
           ))}
         </div>
       ) : null}
       {state.status === "revealed" ? (
-        <div className="mt-6">
+        <div className="arcade-actions">
           <Button
+            className="arcade-coin arcade-icon-btn"
+            aria-label="Prossimo round"
             onClick={() => {
               const result = continueMatch(state, Date.now());
               if (result.ok) {
@@ -120,15 +137,17 @@ export function RpsMatch() {
               }
             }}
           >
-            Prossimo round
+            <ReplayIcon />
           </Button>
         </div>
       ) : null}
-      <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+      <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
         {state.status === "choosing" || state.status === "revealed" ? (
           <>
             <Button
               variant="secondary"
+              className="arcade-pair-btn"
+              aria-label="A abbandona"
               onClick={() => {
                 const result = abandonMatch(state, "A");
                 if (result.ok) {
@@ -137,10 +156,13 @@ export function RpsMatch() {
                 }
               }}
             >
-              A abbandona
+              <span className="arcade-letter">A</span>
+              <ExitIcon />
             </Button>
             <Button
               variant="secondary"
+              className="arcade-pair-btn"
+              aria-label="B abbandona"
               onClick={() => {
                 const result = abandonMatch(state, "B");
                 if (result.ok) {
@@ -149,21 +171,44 @@ export function RpsMatch() {
                 }
               }}
             >
-              B abbandona
+              <span className="arcade-letter">B</span>
+              <ExitIcon />
             </Button>
           </>
         ) : null}
         <Button
-          variant="secondary"
+          className="arcade-coin arcade-icon-btn"
+          aria-label="Nuova partita"
           onClick={() => {
             setState(createRockPaperScissors());
             setHandoff(false);
             setNow(0);
           }}
         >
-          Nuova partita
+          <ReplayIcon />
         </Button>
       </div>
+      <RpsGestureCredit />
+    </div>
+  );
+}
+
+function RoundMarks({ state }: { state: RpsState }) {
+  const round = state.lastRound;
+  if (!round) {
+    return null;
+  }
+  return (
+    <div className="arcade-round mt-3" aria-hidden="true">
+      <span className={round.winner === "A" ? "arcade-round-win" : "inline-flex"}>
+        {round.winner === "A" ? <CrownIcon /> : null}
+        {round.hands.A ? <HandMark hand={round.hands.A} /> : <TimerIcon />}
+      </span>
+      <span className="arcade-letter">{round.winner === "draw" ? "=" : "·"}</span>
+      <span className={round.winner === "B" ? "arcade-round-win" : "inline-flex"}>
+        {round.winner === "B" ? <CrownIcon /> : null}
+        {round.hands.B ? <HandMark hand={round.hands.B} /> : <TimerIcon />}
+      </span>
     </div>
   );
 }

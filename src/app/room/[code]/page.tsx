@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
+import { Cabinet } from "@/components/games/cabinet";
+import { CoinIcon } from "@/components/games/icons";
 import { MatchPanel } from "@/components/matches/match-panel";
 import { RoomActions } from "@/components/rooms/room-actions";
+import { ScrollToMatch } from "@/components/rooms/scroll-to-match";
 import { matchFailureMessage } from "@/lib/matches/messages";
 import { getGame } from "@/lib/games";
 import { roomStatusMessage } from "@/lib/rooms/messages";
@@ -68,58 +71,69 @@ async function RoomScreen({
 
   const game = getGame(room.gameSlug);
   const seats = room.access === "member" ? room.players.length : room.seats;
-  const match = room.access === "member" ? await ensureRoomMatch(room.code) : null;
+  const match =
+    room.access === "member" && room.status === "full"
+      ? await ensureRoomMatch(room.code)
+      : null;
   const board = match && match.ok && "state" in match ? match : null;
   const matchError =
     match && !match.ok && match.reason !== "not_ready" ? match : null;
 
   return (
     <main className="mx-auto w-full max-w-5xl px-4 py-10 sm:py-16">
-      <p className="text-sm font-medium text-accent-2">
-        {game?.name ?? "Gioco"} · codice {room.code}
-      </p>
-      <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
-        Stanza privata
-      </h1>
-      <p role="status" className="mt-4 max-w-xl text-lg leading-8 text-muted">
-        {roomStatusMessage(room.status, seats)}
-      </p>
-      {room.access === "member" ? (
-        <ul className="mt-6 max-w-md divide-y divide-line rounded-2xl border border-line">
-          {room.players.map((player) => (
-            <li key={`${player.nickname}-${player.isYou ? "you" : "other"}`} className="px-4 py-3">
-              <span className="font-semibold">{player.nickname}</span>
-              <span className="text-muted">
-                {player.isHost ? " · host" : ""}
-                {player.isYou ? " · tu" : ""}
-              </span>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p className="mt-4 text-muted">
-          Posti occupati: {room.seats} di 2. I nickname compaiono dopo l&apos;ingresso.
-        </p>
-      )}
-      {matchError ? (
-        <p role="alert" className="mt-4 max-w-xl text-muted">
-          {matchFailureMessage[matchError.reason]}
-        </p>
-      ) : null}
       {board ? (
-        <MatchPanel key={`${board.matchId}-${board.version}`} snapshot={board} />
-      ) : null}
+        <ScrollToMatch matchId={board.matchId}>
+          <MatchPanel
+            key={`${board.matchId}-${board.version}`}
+            snapshot={board}
+            titleLevel="h1"
+          />
+        </ScrollToMatch>
+      ) : (
+        <Cabinet
+          title={game?.name ?? "Stanza"}
+          level="h1"
+          kicker={
+            <>
+              <span className="sr-only">Codice {room.code}</span>
+              <CoinIcon />
+              <span>{room.code}</span>
+            </>
+          }
+        >
+          <p role="status" className="arcade-status">
+            {roomStatusMessage(room.status, seats)}
+          </p>
+          {room.access === "member" ? (
+            <ul className="arcade-players">
+              {room.players.map((player) => (
+                <li key={`${player.nickname}-${player.isYou ? "you" : "other"}`}>
+                  <span>{player.nickname}</span>
+                  {player.isHost ? <span aria-label="host">★</span> : null}
+                  {player.isYou ? <span className="arcade-you" aria-label="tu" /> : null}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="arcade-hint">Posti {room.seats}/2</p>
+          )}
+          {matchError ? (
+            <p role="alert" className="arcade-alert">
+              {matchFailureMessage[matchError.reason]}
+            </p>
+          ) : null}
+          <p className="arcade-hint">La stanza scade dopo due ore.</p>
+        </Cabinet>
+      )}
       {room.status === "waiting" || room.status === "full" ? (
-        <RoomActions
-          code={room.code}
-          roomId={room.access === "member" ? room.roomId : null}
-          mode={room.access === "member" ? "leave" : "join"}
-        />
+        <div className="mx-auto mt-4 max-w-xl">
+          <RoomActions
+            code={room.code}
+            roomId={room.access === "member" ? room.roomId : null}
+            mode={room.access === "member" ? "leave" : "join"}
+          />
+        </div>
       ) : null}
-      <p className="mt-6 max-w-xl text-sm text-muted">
-        La stanza scade dopo due ore. Esci chiude il posto; se esce l&apos;host,
-        la stanza si chiude per entrambi.
-      </p>
     </main>
   );
 }

@@ -1,4 +1,6 @@
 import { redirect } from "next/navigation";
+import { Cabinet } from "@/components/games/cabinet";
+import { GamesIcon } from "@/components/games/icons";
 import { QueueForm } from "@/components/matches/queue-form";
 import { ButtonLink } from "@/components/ui/button-link";
 import type { Game } from "@/lib/games";
@@ -12,23 +14,27 @@ export async function OnlineScreen({ game }: { game: Game }) {
 
   return (
     <main className="mx-auto w-full max-w-5xl px-4 py-10 sm:py-16">
-      <p className="text-sm font-medium text-accent-2">
-        {game.name} · {game.playersLabel}
-      </p>
-      <h1 className="mt-3 max-w-xl text-3xl font-semibold tracking-tight sm:text-4xl">
-        Gioca online
-      </h1>
-      <p className="mt-4 max-w-xl text-lg leading-8 text-muted">
-        La ricerca dura due minuti. Se c&apos;è già qualcuno in attesa per lo
-        stesso gioco, la partita parte subito. Non puoi essere abbinato a te
-        stesso.
-      </p>
-      <QueueForm gameSlug={game.slug} queue={queue} />
-      <div className="mt-6">
-        <ButtonLink href="/games" variant="secondary">
-          Torna ai giochi
-        </ButtonLink>
-      </div>
+      <Cabinet
+        title={game.name}
+        kicker={
+          <>
+            <span className="sr-only">Gioca online</span>
+            <GamesIcon />
+          </>
+        }
+        deck={
+          <ButtonLink href="/games" variant="secondary">
+            Giochi
+          </ButtonLink>
+        }
+      >
+        <p className="arcade-status">Cerca un avversario</p>
+        <p className="arcade-copy mt-3">
+          La ricerca dura due minuti. Se qualcuno aspetta lo stesso gioco, la
+          partita parte subito.
+        </p>
+        <QueueForm gameSlug={game.slug} queue={queue} />
+      </Cabinet>
     </main>
   );
 }

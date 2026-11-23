@@ -8,6 +8,7 @@ import {
   type TicTacToeRejection,
   type TicTacToeState,
 } from "@/game-logic/tic-tac-toe/rules";
+import { CrownIcon, ReplayIcon } from "@/components/games/icons";
 import { TicMark } from "@/components/games/marks";
 import { Button } from "@/components/ui/button";
 
@@ -46,15 +47,27 @@ export function TicTacToeMatch() {
 
   return (
     <div>
-      <p role="status" className="text-lg font-semibold">
-        {status}
-      </p>
+      <div className="arcade-hud" role="status" aria-label={status}>
+        {state.status === "won" && state.winner ? <CrownIcon /> : null}
+        {state.status === "draw" ? (
+          <span className="arcade-letter" aria-hidden="true">
+            =
+          </span>
+        ) : (
+          <span className="arcade-hud-piece">
+            <TicMark
+              mark={state.status === "won" && state.winner ? state.winner : state.turn}
+              className="play-mark h-full w-full"
+            />
+          </span>
+        )}
+      </div>
       {notice ? (
-        <p role="alert" className="mt-2 text-muted">
+        <p role="alert" className="arcade-alert">
           {notice}
         </p>
       ) : null}
-      <div className="mt-6 grid max-w-sm grid-cols-3 gap-3 rounded-3xl border border-line bg-[#0c1224] p-3">
+      <div className="mx-auto mt-5 grid max-w-sm grid-cols-3 gap-3 rounded-3xl border border-[#1d4c63] bg-[#041018] p-3 shadow-[inset_0_0_24px_rgb(0_0_0_/_0.45)]">
         {state.board.map((cell, index) => {
           const winning = state.winningLine?.includes(index) ?? false;
           const row = Math.floor(index / 3) + 1;
@@ -66,22 +79,23 @@ export function TicTacToeMatch() {
               disabled={cell !== null || state.status !== "playing"}
               onClick={() => play(index)}
               aria-label={`Riga ${row}, colonna ${column}${cell ? `, ${cell}` : ", vuota"}`}
-              className={`flex aspect-square items-center justify-center rounded-2xl border focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:cursor-not-allowed ${winning ? "border-accent-2 bg-accent/30" : "border-line bg-card enabled:hover:border-accent-2"}`}
+              className={`flex aspect-square items-center justify-center rounded-2xl border transition-transform duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white enabled:hover:scale-[1.04] enabled:active:scale-95 disabled:cursor-not-allowed ${winning ? "play-win border-[#9ff7e4] bg-[#123044]" : "border-[#1d4c63] bg-[#0a1c2a] enabled:hover:border-[#9ff7e4]"}`}
             >
               <TicMark mark={cell} />
             </button>
           );
         })}
       </div>
-      <div className="mt-6">
+      <div className="arcade-actions">
         <Button
-          variant="secondary"
+          className="arcade-coin arcade-icon-btn"
+          aria-label="Nuova partita"
           onClick={() => {
             setState(createTicTacToe());
             setNotice(null);
           }}
         >
-          Nuova partita
+          <ReplayIcon />
         </Button>
       </div>
     </div>

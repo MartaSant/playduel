@@ -45,7 +45,13 @@ export async function readMatch(matchId: string): Promise<MatchResult> {
 
 export async function playMove(
   matchId: string,
-  intent: { cell: number } | { column: number } | { hand: string },
+  intent:
+    | { cell: number }
+    | { column: number }
+    | { hand: string }
+    | { edge: string }
+    | { pile: number; take: number }
+    | { from: number; to: number },
 ): Promise<MatchResult> {
   if (!isMatchId(matchId)) {
     return { ok: false, reason: "not_found" };
@@ -81,7 +87,7 @@ async function callMatch(
     | { p_game_slug: string }
     | { p_code: string }
     | { p_match: string }
-    | { p_match: string; p_intent: { cell: number } | { column: number } | { hand: string } },
+    | { p_match: string; p_intent: { cell: number } | { column: number } | { hand: string } | { edge: string } | { pile: number; take: number } | { from: number; to: number } },
 ): Promise<MatchResult> {
   const supabase = await createClient();
   if (!supabase) {

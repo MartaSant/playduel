@@ -51,9 +51,9 @@ export function NicknameForm({
         autoComplete="nickname"
         required
         aria-describedby="nickname-help"
-        className="mt-2 min-h-12 w-full rounded-xl border border-line bg-card px-4 text-base text-foreground outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+        className="arcade-field mt-2 min-h-12 w-full rounded-xl border px-4 text-base outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
       />
-      <p id="nickname-help" className="mt-2 text-sm text-muted">
+      <p id="nickname-help" className="arcade-hint">
         Da 3 a 20 caratteri: lettere, numeri e spazi. Nessuna email e nessuna
         password.
       </p>
@@ -74,7 +74,7 @@ export function NicknameForm({
         </p>
       ) : null}
       <div className="mt-4 flex flex-col gap-3 sm:flex-row">
-        <Button type="submit" disabled={pending}>
+        <Button type="submit" className="arcade-coin" disabled={pending}>
           {pending ? "Salvataggio…" : "Salva nickname"}
         </Button>
         {nicknameReady ? (

@@ -61,12 +61,32 @@ export async function playMoveAction(
   if (hand === "rock" || hand === "paper" || hand === "scissors") {
     return finishPlay(matchId, { hand });
   }
+  const edge = text(formData, "edge");
+  if (edge !== null && /^[hv](?:1[01]|[0-9])$/.test(edge)) {
+    return finishPlay(matchId, { edge });
+  }
+  const pile = integer(formData, "pile");
+  const take = integer(formData, "take");
+  if (pile !== null && take !== null) {
+    return finishPlay(matchId, { pile, take });
+  }
+  const from = integer(formData, "from");
+  const to = integer(formData, "to");
+  if (from !== null && to !== null) {
+    return finishPlay(matchId, { from, to });
+  }
   return { ok: false, reason: "invalid_move" };
 }
 
 async function finishPlay(
   matchId: string,
-  intent: { cell: number } | { column: number } | { hand: string },
+  intent:
+    | { cell: number }
+    | { column: number }
+    | { hand: string }
+    | { edge: string }
+    | { pile: number; take: number }
+    | { from: number; to: number },
 ): Promise<MatchResult> {
   const result = await playMove(matchId, intent);
   if (result.ok) {

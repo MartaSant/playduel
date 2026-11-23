@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { NicknameForm } from "@/components/players/nickname-form";
+import { Cabinet } from "@/components/games/cabinet";
+import { CoinIcon } from "@/components/games/icons";
 import { safeRoomNext } from "@/lib/rooms/rules";
 import { getSupabasePublicEnv } from "@/lib/supabase/env";
 import { noteAccess } from "@/server/services/access";
@@ -20,17 +22,23 @@ export default function ProfilePage({
 
   return (
     <main className="mx-auto w-full max-w-5xl px-4 py-10 sm:py-16">
-      <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-        Profilo temporaneo
-      </h1>
-      <p className="mt-4 max-w-2xl text-lg leading-8 text-muted">
-        Nessuna registrazione con email e password. La sessione anonima non
-        dimostra l&apos;identità di una persona. Puoi cambiare nickname: non
-        conserviamo lo storico.
+      <Cabinet
+        title="Profilo"
+        kicker={
+          <>
+            <span className="sr-only">Nickname temporaneo</span>
+            <CoinIcon />
+          </>
+        }
+      >
+      <p className="arcade-copy">
+        Nessuna email e nessuna password. La sessione anonima non dimostra
+        l&apos;identità di una persona. Puoi cambiare nickname: non conserviamo
+        lo storico.
       </p>
       <Suspense
         fallback={
-          <p role="status" className="mt-6 text-muted">
+          <p role="status" className="arcade-hint">
             Caricamento profilo…
           </p>
         }
@@ -41,6 +49,7 @@ export default function ProfilePage({
           <PlainProfile searchParams={searchParams} />
         )}
       </Suspense>
+      </Cabinet>
     </main>
   );
 }

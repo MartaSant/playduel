@@ -1,3 +1,5 @@
+import { Cabinet } from "@/components/games/cabinet";
+import { GamesIcon } from "@/components/games/icons";
 import { CreateRoomForm } from "@/components/rooms/create-room-form";
 import { ButtonLink } from "@/components/ui/button-link";
 import { modeLabel, type Game, type PlayMode } from "@/lib/games";
@@ -16,23 +18,28 @@ export function IntentPanel({ game, mode }: IntentPanelProps) {
 
   return (
     <main className="mx-auto w-full max-w-5xl px-4 py-10 sm:py-16">
-      <p className="text-sm font-medium text-accent-2">
-        {game.name} · {game.playersLabel}
-      </p>
-      <h1 className="mt-3 max-w-xl text-3xl font-semibold tracking-tight sm:text-4xl">
-        {title}
-      </h1>
-      <p className="mt-4 max-w-xl text-lg leading-8 text-muted" role="status">
-        {detail}
-      </p>
-      <p className="mt-4 max-w-xl leading-7 text-muted">{game.summary}</p>
-      <div className="mt-8 flex max-w-xs flex-col gap-3">
-        {mode === "stanza" ? <CreateRoomForm gameSlug={game.slug} /> : null}
-        <ButtonLink href="/games">Torna ai giochi</ButtonLink>
-        <ButtonLink href="/" variant="secondary">
-          Torna alla home
-        </ButtonLink>
-      </div>
+      <Cabinet
+        title={game.name}
+        kicker={
+          <>
+            <span className="sr-only">{title}</span>
+            <GamesIcon />
+          </>
+        }
+        deck={
+          <ButtonLink href="/games" variant="secondary">
+            Giochi
+          </ButtonLink>
+        }
+      >
+        <p className="arcade-status" role="status">
+          {title}
+        </p>
+        <p className="arcade-copy mt-3">{detail}</p>
+        <div className="mt-5 max-w-xs">
+          {mode === "stanza" ? <CreateRoomForm gameSlug={game.slug} /> : null}
+        </div>
+      </Cabinet>
     </main>
   );
 }

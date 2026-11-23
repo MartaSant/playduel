@@ -51,7 +51,7 @@ export function QueueForm({
       ) : (
         <form action={searchAction}>
           <input type="hidden" name="game" value={gameSlug} />
-          <Button type="submit" disabled={searching}>
+          <Button type="submit" className="arcade-coin" disabled={searching}>
             {searching ? "Ricerca…" : "Cerca un avversario"}
           </Button>
         </form>

@@ -12,7 +12,9 @@ const accessLog = readFileSync(
   "supabase/migrations/20261123230000_access_log.sql",
   "utf8",
 ).toLowerCase();
-const sql = fullSql.replace(accessLog, "");
+const sql = fullSql
+  .replace(accessLog, "")
+  .replace(/create or replace function public\.log_access[\s\S]*?\$\$;/g, "");
 const hardening = readFileSync(
   "supabase/migrations/20261123210000_hardening.sql",
   "utf8",

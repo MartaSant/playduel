@@ -20,7 +20,7 @@ export function CreateRoomForm({ gameSlug }: CreateRoomFormProps) {
   return (
     <form action={action} className="flex flex-col gap-3">
       <input type="hidden" name="game" value={gameSlug} />
-      <Button type="submit" variant="secondary" disabled={pending}>
+      <Button type="submit" className="arcade-coin" disabled={pending}>
         {pending ? "Creazione…" : "Crea stanza privata"}
       </Button>
       {state && !state.ok ? (

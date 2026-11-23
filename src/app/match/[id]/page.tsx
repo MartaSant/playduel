@@ -63,9 +63,6 @@ async function MatchScreen({
 
   return (
     <main className="mx-auto w-full max-w-5xl px-4 py-10 sm:py-16">
-      <p className="text-sm font-medium text-accent-2">
-        {match.roomCode ? `Stanza ${match.roomCode}` : "Partita online"}
-      </p>
       <MatchPanel key={`${match.matchId}-${match.version}`} snapshot={match} />
     </main>
   );

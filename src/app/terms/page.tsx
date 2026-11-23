@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { Cabinet } from "@/components/games/cabinet";
+import { CoinIcon } from "@/components/games/icons";
 import { ProvisionalNote } from "@/components/layout/provisional-note";
 
 export const metadata: Metadata = {
@@ -8,20 +10,27 @@ export const metadata: Metadata = {
 
 export default function TermsPage() {
   return (
-    <main className="mx-auto w-full max-w-2xl px-4 py-10 sm:py-16">
-      <h1 className="text-3xl font-semibold tracking-tight">Termini</h1>
-      <div className="mt-6">
-        <ProvisionalNote />
-      </div>
-      <div className="mt-8 space-y-4 leading-7 text-muted">
+    <main className="mx-auto w-full max-w-5xl px-4 py-10 sm:py-16">
+      <Cabinet
+        title="Termini"
+        kicker={
+          <>
+            <span className="sr-only">Regole del servizio</span>
+            <CoinIcon />
+          </>
+        }
+      >
+      <ProvisionalNote />
+      <div className="arcade-copy mt-4">
         <p>
-          PlayDuel offre Tris, Forza 4 e Morra cinese, sempre in due. Si può
+          PlayDuel offre Tris, Forza 4, Morra cinese, Reversi, Punti e quadrati,
+          Le tre pile e Dama, sempre in due. Si può
           giocare in locale, cercare un avversario oppure aprire una stanza con
           un codice. Non ci sono pagamenti, classifiche o tornei.
         </p>
         <p>
           La Morra cinese è al meglio di 3 round e può finire a 2 vittorie. Una
-          mano non scelta in tempo perde il round. In Tris e Forza 4 il turno
+          mano non scelta in tempo perde il round. Negli altri giochi il turno
           scaduto chiude la partita. L&apos;abbandono assegna la vittoria
           all&apos;altro giocatore. Le regole applicate sono quelle del server.
         </p>
@@ -32,6 +41,7 @@ export default function TermsPage() {
           verificati e revisione legale.
         </p>
       </div>
+      </Cabinet>
     </main>
   );
 }

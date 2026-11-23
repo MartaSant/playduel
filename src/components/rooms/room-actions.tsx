@@ -80,8 +80,8 @@ export function RoomActions({ code, roomId, mode }: RoomActionsProps) {
         </Button>
         <form action={formAction}>
           <input type="hidden" name="code" value={code} />
-          <Button type="submit" disabled={pending}>
-            {mode === "join" ? "Entra nella stanza" : "Esci dalla stanza"}
+          <Button type="submit" className="arcade-coin" disabled={pending}>
+            {mode === "join" ? "Entra" : "Esci"}
           </Button>
         </form>
       </div>

@@ -1,5 +1,9 @@
 import { getGame, type GameSlug } from "../games.ts";
 import type { ConnectFourState } from "../../game-logic/connect-four/rules.ts";
+import type { DamaState } from "../../game-logic/dama/rules.ts";
+import type { DotsState } from "../../game-logic/dots-and-boxes/rules.ts";
+import type { NimState } from "../../game-logic/nim/rules.ts";
+import type { ReversiState } from "../../game-logic/reversi/rules.ts";
 import type { RpsHand, RpsState } from "../../game-logic/rock-paper-scissors/rules.ts";
 import type { TicTacToeState } from "../../game-logic/tic-tac-toe/rules.ts";
 
@@ -33,6 +37,16 @@ export const MOVE_DETAILS = [
   "invalid-hand",
   "already-chosen",
   "not-choosing",
+  "no-flip",
+  "invalid-edge",
+  "edge-taken",
+  "invalid-pile",
+  "invalid-take",
+  "invalid-square",
+  "empty-from",
+  "not-your-piece",
+  "must-capture",
+  "must-continue",
 ] as const;
 
 export type MoveDetail = (typeof MOVE_DETAILS)[number];
@@ -64,7 +78,7 @@ export type MatchSnapshot = {
   youRequested: boolean;
   opponentRequested: boolean;
   players: MatchPlayer[];
-  state: TicTacToeState | ConnectFourState | RpsState;
+  state: TicTacToeState | ConnectFourState | RpsState | ReversiState | DotsState | NimState | DamaState;
 };
 
 export type QueueSnapshot =
@@ -188,12 +202,24 @@ function parseSnapshot(value: Record<string, unknown>): MatchSnapshot | null {
 function readState(
   game: GameSlug,
   value: unknown,
-): TicTacToeState | ConnectFourState | RpsState | null {
+): TicTacToeState | ConnectFourState | RpsState | ReversiState | DotsState | NimState | DamaState | null {
   if (game === "tris") {
     return readTicTacToe(value);
   }
   if (game === "forza-4") {
     return readConnectFour(value);
+  }
+  if (game === "reversi") {
+    return readReversi(value);
+  }
+  if (game === "punti-quadrati") {
+    return readDots(value);
+  }
+  if (game === "tre-pile") {
+    return readNim(value);
+  }
+  if (game === "dama") {
+    return readDama(value);
   }
   return readRps(value);
 }
@@ -252,6 +278,130 @@ function readConnectFour(value: unknown): ConnectFourState | null {
     status: value.status,
     winner: value.winner === "red" || value.winner === "yellow" ? value.winner : null,
     winningCells: readPoints(value.winningCells),
+  };
+}
+
+function readReversi(value: unknown): ReversiState | null {
+  if (!isRecord(value) || !Array.isArray(value.board) || value.board.length !== 64) {
+    return null;
+  }
+  const board = value.board.map((cell) =>
+    cell === "black" || cell === "white" ? cell : cell === null ? null : undefined,
+  );
+  if (board.some((cell) => cell === undefined)) {
+    return null;
+  }
+  if (value.turn !== "black" && value.turn !== "white") {
+    return null;
+  }
+  if (value.status !== "playing" && value.status !== "won" && value.status !== "draw") {
+    return null;
+  }
+  return {
+    board,
+    turn: value.turn,
+    status: value.status,
+    winner: value.winner === "black" || value.winner === "white" ? value.winner : null,
+  };
+}
+
+function readDots(value: unknown): DotsState | null {
+  if (
+    !isRecord(value) ||
+    !Array.isArray(value.horizontal) ||
+    value.horizontal.length !== 12 ||
+    !Array.isArray(value.vertical) ||
+    value.vertical.length !== 12 ||
+    !Array.isArray(value.boxes) ||
+    value.boxes.length !== 9
+  ) {
+    return null;
+  }
+  if (value.horizontal.some((edge) => typeof edge !== "boolean")) {
+    return null;
+  }
+  if (value.vertical.some((edge) => typeof edge !== "boolean")) {
+    return null;
+  }
+  const boxes = value.boxes.map((owner) =>
+    owner === "A" || owner === "B" ? owner : owner === null ? null : undefined,
+  );
+  if (boxes.some((owner) => owner === undefined)) {
+    return null;
+  }
+  if (value.turn !== "A" && value.turn !== "B") {
+    return null;
+  }
+  if (value.status !== "playing" && value.status !== "won") {
+    return null;
+  }
+  return {
+    horizontal: value.horizontal,
+    vertical: value.vertical,
+    boxes,
+    turn: value.turn,
+    status: value.status,
+    winner: value.winner === "A" || value.winner === "B" ? value.winner : null,
+  };
+}
+
+function readNim(value: unknown): NimState | null {
+  if (!isRecord(value) || !Array.isArray(value.piles) || value.piles.length !== 3) {
+    return null;
+  }
+  const piles = value.piles.map((count) => (typeof count === "number" ? count : null));
+  if (piles.some((count) => count === null)) {
+    return null;
+  }
+  if (value.turn !== "A" && value.turn !== "B") {
+    return null;
+  }
+  if (value.status !== "playing" && value.status !== "won") {
+    return null;
+  }
+  return {
+    piles: [piles[0] as number, piles[1] as number, piles[2] as number],
+    turn: value.turn,
+    status: value.status,
+    winner: value.winner === "A" || value.winner === "B" ? value.winner : null,
+  };
+}
+
+function readDama(value: unknown): DamaState | null {
+  if (!isRecord(value) || !Array.isArray(value.board) || value.board.length !== 64) {
+    return null;
+  }
+  const board = value.board.map((cell) =>
+    cell === "white" || cell === "black" || cell === "white-king" || cell === "black-king"
+      ? cell
+      : cell === null
+        ? null
+        : undefined,
+  );
+  if (board.some((cell) => cell === undefined)) {
+    return null;
+  }
+  if (value.turn !== "white" && value.turn !== "black") {
+    return null;
+  }
+  if (value.status !== "playing" && value.status !== "won") {
+    return null;
+  }
+  const mustFrom =
+    value.mustFrom === null
+      ? null
+      : typeof value.mustFrom === "number" && Number.isInteger(value.mustFrom)
+        ? value.mustFrom
+        : undefined;
+  if (mustFrom === undefined || (mustFrom !== null && (mustFrom < 0 || mustFrom > 63))) {
+    return null;
+  }
+  return {
+    board,
+    turn: value.turn,
+    mustFrom,
+    status: value.status,
+    winner: value.winner === "white" || value.winner === "black" ? value.winner : null,
   };
 }
 

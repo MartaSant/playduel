@@ -69,7 +69,13 @@ export type Database = {
       play_move: {
         Args: {
           p_match: string;
-          p_intent: { cell: number } | { column: number } | { hand: string };
+          p_intent:
+            | { cell: number }
+            | { column: number }
+            | { hand: string }
+            | { edge: string }
+            | { pile: number; take: number }
+            | { from: number; to: number };
         };
         Returns: Json;
       };

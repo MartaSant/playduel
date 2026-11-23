@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { CreateRoomForm } from "@/components/rooms/create-room-form";
+import { Disc, HandMark, TicMark } from "@/components/games/marks";
 import { ButtonLink } from "@/components/ui/button-link";
-import type { Game } from "@/lib/games";
+import type { Game, GameSlug } from "@/lib/games";
 
 type GameCardProps = {
   game: Game;
@@ -12,30 +12,51 @@ export function GameCard({ game, showActions = false }: GameCardProps) {
   return (
     <article
       id={showActions ? game.slug : undefined}
-      className="flex h-full scroll-mt-24 flex-col rounded-2xl border border-line bg-card p-5"
+      className="arcade-tile scroll-mt-24"
     >
-      <p className="text-sm font-medium text-accent-2">{game.playersLabel}</p>
-      <h2 className="mt-2 text-xl font-semibold tracking-tight">{game.name}</h2>
-      <p className="mt-2 flex-1 text-base leading-7 text-muted">{game.summary}</p>
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#9ff7e4]">
+          {game.playersLabel}
+        </p>
+        <GameGlyph slug={game.slug} />
+      </div>
+      <h2 className="mt-2 text-xl">{game.name}</h2>
+      <p className="mt-2 flex-1 text-sm leading-6 text-[#b7d0d8]">{game.summary}</p>
       {showActions ? (
-        <div className="mt-5 flex flex-col gap-3">
-          <ButtonLink href={`/games/${game.slug}/online`}>Gioca online</ButtonLink>
+        <div className="arcade-tile-actions">
+          <ButtonLink href={`/games/${game.slug}/online`} className="arcade-coin">
+            Gioca online
+          </ButtonLink>
           <CreateRoomForm gameSlug={game.slug} />
-          <Link
-            href={`/local/${game.slug}`}
-            className="inline-flex min-h-11 items-center justify-center font-semibold text-accent-2 underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-          >
+          <ButtonLink href={`/local/${game.slug}`} variant="secondary">
             Prova in locale
-          </Link>
+          </ButtonLink>
         </div>
       ) : (
-        <Link
-          href={`/games#${game.slug}`}
-          className="mt-5 inline-flex min-h-11 items-center font-semibold text-accent-2 underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-        >
-          Scegli {game.name}
-        </Link>
+        <div className="arcade-tile-actions">
+          <ButtonLink href={`/games#${game.slug}`} variant="secondary">
+            Scegli
+          </ButtonLink>
+        </div>
       )}
     </article>
   );
+}
+
+function GameGlyph({ slug }: { slug: GameSlug }) {
+  if (slug === "tris") {
+    return (
+      <span className="arcade-hud-piece">
+        <TicMark mark="X" className="h-full w-full" />
+      </span>
+    );
+  }
+  if (slug === "forza-4") {
+    return (
+      <span className="arcade-hud-piece">
+        <Disc color="red" />
+      </span>
+    );
+  }
+  return <HandMark hand="rock" />;
 }

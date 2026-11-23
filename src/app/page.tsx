@@ -1,55 +1,39 @@
 import { Suspense } from "react";
-import { GameCard } from "@/components/games/game-card";
+import { Cabinet } from "@/components/games/cabinet";
+import { CoinIcon } from "@/components/games/icons";
 import { AccessNote } from "@/components/security/access-note";
 import { ButtonLink } from "@/components/ui/button-link";
-import { games } from "@/lib/games";
 
 export default function Home() {
   return (
-    <main>
+    <main className="mx-auto w-full max-w-5xl px-4 py-10 sm:py-16">
       <Suspense fallback={null}>
         <AccessNote action="visit" />
       </Suspense>
-      <section className="mx-auto w-full max-w-5xl px-4 py-12 sm:py-20">
-        <p className="text-sm font-semibold uppercase tracking-[0.16em] text-accent-2">
-          PlayDuel
-        </p>
-        <h1 className="mt-3 max-w-xl text-4xl font-semibold tracking-tight sm:text-5xl">
-          Scegli il gioco. Trova la sfida.
-        </h1>
-        <p className="mt-5 max-w-xl text-lg leading-8 text-muted">
-          Due persone, un minigioco, nessuna registrazione tradizionale. Un
-          nickname temporaneo basta per cercare una partita o aprire una stanza.
-        </p>
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-          <ButtonLink href="/profile">Crea il nickname</ButtonLink>
-          <ButtonLink href="/games" variant="secondary">
-            Gioca ora
-          </ButtonLink>
-          <ButtonLink href="/games#crea-stanza" variant="secondary">
-            Crea stanza privata
-          </ButtonLink>
-        </div>
-      </section>
-      <section
-        aria-labelledby="giochi-heading"
-        className="mx-auto w-full max-w-5xl px-4 pb-16"
+      <Cabinet
+        title="PlayDuel"
+        kicker={
+          <>
+            <span className="sr-only">Sala giochi</span>
+            <CoinIcon />
+          </>
+        }
+        deck={
+          <>
+            <ButtonLink href="/games" className="arcade-coin">
+              Scegli i giochi
+            </ButtonLink>
+            <ButtonLink href="/profile" variant="secondary">
+              Crea il nickname
+            </ButtonLink>
+          </>
+        }
       >
-        <h2 id="giochi-heading" className="text-2xl font-semibold tracking-tight">
-          Tre duelli
-        </h2>
-        <p className="mt-2 max-w-xl text-muted">
-          Ogni modalità è per due giocatori. Scegline una per vedere come
-          entrare.
+        <p className="arcade-status">Scegli il gioco. Trova la sfida.</p>
+        <p className="arcade-copy mt-3">
+          Due persone, un minigioco. Un nickname temporaneo basta.
         </p>
-        <ul className="mt-6 grid gap-4 md:grid-cols-3">
-          {games.map((game) => (
-            <li key={game.slug}>
-              <GameCard game={game} />
-            </li>
-          ))}
-        </ul>
-      </section>
+      </Cabinet>
     </main>
   );
 }

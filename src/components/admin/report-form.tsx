@@ -10,7 +10,7 @@ export function ReportForm({ matchId }: { matchId: string }) {
     return <p className="mt-6 text-sm text-muted">Segnalazione inviata.</p>;
   }
   return (
-    <form action={action} className="mt-8 flex max-w-md flex-col gap-3">
+    <form action={action} className="arcade-note flex flex-col gap-3">
       <input type="hidden" name="matchId" value={matchId} />
       <label htmlFor="reason" className="text-sm font-semibold">
         Segnala l&apos;avversario
@@ -21,7 +21,7 @@ export function ReportForm({ matchId }: { matchId: string }) {
           minLength={10}
           maxLength={500}
           rows={3}
-          className="mt-2 w-full rounded-xl border border-line bg-card px-3 py-3"
+          className="arcade-field mt-2 w-full rounded-xl border px-3 py-3"
         />
       </label>
       {state && !state.ok ? <p role="alert">{state.message}</p> : null}

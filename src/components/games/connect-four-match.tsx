@@ -9,6 +9,7 @@ import {
   type ConnectFourRejection,
   type ConnectFourState,
 } from "@/game-logic/connect-four/rules";
+import { CrownIcon, ReplayIcon } from "@/components/games/icons";
 import { Disc } from "@/components/games/marks";
 import { Button } from "@/components/ui/button";
 
@@ -49,73 +50,74 @@ export function ConnectFourMatch() {
 
   return (
     <div>
-      <p role="status" className="text-lg font-semibold">
-        {status}
-      </p>
-      <p className="mt-2 text-sm text-muted">
-        Il gettone cade nella casella libera più bassa.
-      </p>
+      <div className="arcade-hud" role="status" aria-label={status}>
+        {state.status === "won" && state.winner ? <CrownIcon /> : null}
+        {state.status === "draw" ? (
+          <span className="arcade-letter" aria-hidden="true">
+            =
+          </span>
+        ) : (
+          <span className="arcade-hud-piece">
+            <Disc color={state.status === "won" && state.winner ? state.winner : state.turn} />
+          </span>
+        )}
+      </div>
       {notice ? (
-        <p role="alert" className="mt-2 text-muted">
+        <p role="alert" className="arcade-alert">
           {notice}
         </p>
       ) : null}
-      <div className="mt-6 grid max-w-md grid-cols-7 gap-2 rounded-3xl border border-line bg-[#16325c] p-3">
-        <div className="col-span-7 grid grid-cols-7 gap-2">
+      <div className="mx-auto mt-5 grid max-w-md grid-cols-7 gap-2 overflow-hidden rounded-3xl border border-[#0a2748] bg-[#16325c] p-3 shadow-[inset_0_0_20px_rgb(0_0_0_/_0.35)]">
         {state.columns.map((column, index) => {
           const full = column.every((cell) => cell !== null);
+          const playable = state.status === "playing" && !full;
+          const stacked = column
+            .map((cell) => (cell ? PLAYER_LABEL[cell] : "vuota"))
+            .join(", ");
           return (
             <button
               key={index}
               type="button"
-              disabled={state.status !== "playing" || full}
+              disabled={!playable}
               onClick={() => drop(index)}
-              aria-label={`Inserisci nella colonna ${index + 1}`}
-              className="flex min-h-11 items-center justify-center rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:cursor-not-allowed disabled:opacity-40"
+              aria-label={`Inserisci nella colonna ${index + 1}. Dal basso: ${stacked}.`}
+              className="flex flex-col gap-2 rounded-2xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white enabled:cursor-pointer enabled:hover:bg-white/10 enabled:active:bg-white/15 disabled:cursor-not-allowed"
             >
-              <span className="sr-only">Colonna {index + 1}</span>
-              <span className="block h-6 w-6">
-                <Disc color={state.status === "playing" && !full ? state.turn : null} />
+              <span className="flex h-8 items-center justify-center">
+                <span className={`block h-6 w-6 ${playable ? "" : "opacity-40"}`}>
+                  <Disc color={playable ? state.turn : null} />
+                </span>
               </span>
+              {Array.from({ length: CONNECT_FOUR_ROWS }, (_, offset) => {
+                const row = CONNECT_FOUR_ROWS - 1 - offset;
+                const disc = column[row] ?? null;
+                const winning =
+                  state.winningCells?.some(
+                    (cell) => cell.column === index && cell.row === row,
+                  ) ?? false;
+                return (
+                  <span
+                    key={row}
+                    className={`flex aspect-square items-center justify-center rounded-full ${winning ? "play-win bg-white/20" : ""}`}
+                  >
+                    <Disc color={disc} drop={disc !== null} />
+                  </span>
+                );
+              })}
             </button>
           );
         })}
-        </div>
-        <div className="col-span-7 grid grid-cols-7 gap-2">
-        {Array.from({ length: CONNECT_FOUR_ROWS }, (_, offset) => {
-          const row = CONNECT_FOUR_ROWS - 1 - offset;
-          return state.columns.map((column, columnIndex) => {
-            const disc = column[row] ?? null;
-            const winning =
-              state.winningCells?.some(
-                (cell) => cell.column === columnIndex && cell.row === row,
-              ) ?? false;
-            return (
-              <div
-                key={`${columnIndex}-${row}`}
-                aria-label={
-                  disc
-                    ? `${PLAYER_LABEL[disc]}, riga ${row + 1}, colonna ${columnIndex + 1}`
-                    : `Vuota, riga ${row + 1}, colonna ${columnIndex + 1}`
-                }
-                className={`flex aspect-square items-center justify-center rounded-full ${winning ? "bg-white/20" : ""}`}
-              >
-                <Disc color={disc} />
-              </div>
-            );
-          });
-        })}
-        </div>
       </div>
-      <div className="mt-6">
+      <div className="arcade-actions">
         <Button
-          variant="secondary"
+          className="arcade-coin arcade-icon-btn"
+          aria-label="Nuova partita"
           onClick={() => {
             setState(createConnectFour());
             setNotice(null);
           }}
         >
-          Nuova partita
+          <ReplayIcon />
         </Button>
       </div>
     </div>

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
+  <rect width="640" height="640" fill="#1a2744"/>
+  <g stroke="#9ff7e4" stroke-width="18" stroke-linecap="round">
+    <path d="M120 120 H520 M120 320 H520 M120 520 H520"/>
+    <path d="M120 120 V520 M320 120 V520 M520 120 V520"/>
+  </g>
+  <circle cx="120" cy="120" r="16" fill="#ffe7b0"/>
+  <circle cx="320" cy="120" r="16" fill="#ffe7b0"/>
+  <circle cx="520" cy="120" r="16" fill="#ffe7b0"/>
+  <circle cx="120" cy="320" r="16" fill="#ffe7b0"/>
+  <circle cx="320" cy="320" r="16" fill="#ffe7b0"/>
+  <circle cx="520" cy="320" r="16" fill="#ffe7b0"/>
+  <circle cx="120" cy="520" r="16" fill="#ffe7b0"/>
+  <circle cx="320" cy="520" r="16" fill="#ffe7b0"/>
+  <circle cx="520" cy="520" r="16" fill="#ffe7b0"/>
+  <text x="220" y="250" fill="#ffd56a" font-size="92" font-family="sans-serif">A</text>
+</svg>

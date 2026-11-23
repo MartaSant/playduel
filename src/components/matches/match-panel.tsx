@@ -22,13 +22,33 @@ import {
   rematchAction,
 } from "@/server/actions/matches";
 import { ReportForm } from "@/components/admin/report-form";
-import { Disc, HandMark, TicMark } from "@/components/games/marks";
+import { DamaBoard, DotsBoard, NimBoard, ReversiBoard } from "@/components/matches/extra-boards";
+import { Cabinet } from "@/components/games/cabinet";
+import {
+  CrownIcon,
+  ExitIcon,
+  GamesIcon,
+  ReplayIcon,
+  SignalIcon,
+  TimerIcon,
+} from "@/components/games/icons";
+import { Disc, HandMark, RpsGestureCredit, TicMark } from "@/components/games/marks";
 import { Button } from "@/components/ui/button";
 
 const HAND_LABEL: Record<RpsHand, string> = {
   rock: "Sasso",
   paper: "Carta",
   scissors: "Forbici",
+};
+
+const GAME_TITLE: Record<MatchSnapshot["gameSlug"], string> = {
+  tris: "Tris",
+  "forza-4": "Forza 4",
+  "morra-cinese": "Morra cinese",
+  reversi: "Reversi",
+  "punti-quadrati": "Punti e quadrati",
+  "tre-pile": "Le tre pile",
+  dama: "Dama",
 };
 
 const SEAT_LABEL: Record<string, string> = {
@@ -38,9 +58,17 @@ const SEAT_LABEL: Record<string, string> = {
   yellow: "Giallo",
   A: "A",
   B: "B",
+  black: "Nero",
+  white: "Bianco",
 };
 
-export function MatchPanel({ snapshot }: { snapshot: MatchSnapshot }) {
+export function MatchPanel({
+  snapshot,
+  titleLevel = "h1",
+}: {
+  snapshot: MatchSnapshot;
+  titleLevel?: "h1" | "h2";
+}) {
   const router = useRouter();
   const [seconds, setSeconds] = useState<number | null>(null);
   const [move, moveAction, movePending] = useActionState(playMoveAction, null);
@@ -94,75 +122,120 @@ export function MatchPanel({ snapshot }: { snapshot: MatchSnapshot }) {
   const notice = firstNotice(move, rematch, abandoned);
 
   return (
-    <section className="mt-8" aria-labelledby="partita-heading">
-      <h2 id="partita-heading" className="text-2xl font-semibold tracking-tight">
-        {headline(snapshot)}
-      </h2>
-      <p className="mt-2 text-muted">
-        {snapshot.players
-          .map(
-            (player) =>
-              `${player.nickname} (${SEAT_LABEL[player.seat] ?? player.seat})${player.isYou ? ", tu" : ""}`,
-          )
-          .join(" · ")}
-      </p>
-      {snapshot.status === "playing" && seconds !== null ? (
-        <p className="mt-2 text-sm text-muted">Secondi rimasti: {seconds}</p>
-      ) : null}
-      {notice ? (
-        <p role="alert" className="mt-3 text-sm text-foreground">
-          {notice}
+    <section className="arcade-stage mt-8">
+      <Cabinet
+        title={GAME_TITLE[snapshot.gameSlug]}
+        kicker={
+          <>
+            <span className="sr-only">
+              {snapshot.roomCode ? `Stanza ${snapshot.roomCode}` : "Partita online"}
+            </span>
+            <SignalIcon />
+            {snapshot.roomCode ? snapshot.roomCode : null}
+          </>
+        }
+        level={titleLevel}
+        deck={
+          <>
+            {snapshot.status === "playing" ? (
+              <form action={abandonForm}>
+                <input type="hidden" name="matchId" value={snapshot.matchId} />
+                <Button
+                  type="submit"
+                  variant="secondary"
+                  className="arcade-icon-btn"
+                  aria-label="Abbandona la partita"
+                  disabled={abandonPending}
+                >
+                  <ExitIcon />
+                </Button>
+              </form>
+            ) : (
+              <form action={rematchForm}>
+                <input type="hidden" name="matchId" value={snapshot.matchId} />
+                <Button
+                  type="submit"
+                  className="arcade-coin arcade-icon-btn"
+                  aria-label={snapshot.youRequested ? "Rivincita chiesta" : "Rivincita"}
+                  disabled={rematchPending || snapshot.youRequested}
+                >
+                  <ReplayIcon />
+                </Button>
+              </form>
+            )}
+            <Link
+              href="/games"
+              aria-label="Torna ai giochi"
+              className="arcade-icon-btn inline-flex min-h-12 items-center justify-center rounded-full border border-line bg-[#1a1612] font-semibold text-foreground"
+            >
+              <GamesIcon />
+            </Link>
+          </>
+        }
+      >
+        <p className="sr-only" role="status">
+          {headline(snapshot)}
         </p>
-      ) : null}
-      <div className="mt-6">
-        {snapshot.gameSlug === "tris" ? (
-          <TrisBoard
-            snapshot={snapshot}
-            action={moveAction}
-            pending={movePending}
-          />
+        <TurnPiece snapshot={snapshot} />
+        <ul className="arcade-players">
+          {snapshot.players.map((player) => (
+            <li key={`${player.nickname}-${player.seat}`}>
+              <SeatPiece seat={player.seat} />
+              <span>{player.nickname}</span>
+              {player.isYou ? <span className="arcade-you" aria-label="tu" /> : null}
+            </li>
+          ))}
+        </ul>
+        {snapshot.status === "playing" && seconds !== null ? (
+          <p className="arcade-timer arcade-hint">
+            <TimerIcon />
+            {seconds}
+          </p>
         ) : null}
-        {snapshot.gameSlug === "forza-4" ? (
-          <ConnectFourBoard
-            snapshot={snapshot}
-            action={moveAction}
-            pending={movePending}
-          />
+        {notice ? (
+          <p role="alert" className="arcade-alert">
+            {notice}
+          </p>
         ) : null}
-        {snapshot.gameSlug === "morra-cinese" ? (
-          <RpsBoard
-            snapshot={snapshot}
-            action={moveAction}
-            pending={movePending}
-          />
-        ) : null}
-      </div>
-      <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-        {snapshot.status === "playing" ? (
-          <form action={abandonForm}>
-            <input type="hidden" name="matchId" value={snapshot.matchId} />
-            <Button type="submit" variant="secondary" disabled={abandonPending}>
-              Abbandona la partita
-            </Button>
-          </form>
-        ) : (
-          <form action={rematchForm}>
-            <input type="hidden" name="matchId" value={snapshot.matchId} />
-            <Button type="submit" disabled={rematchPending || snapshot.youRequested}>
-              {snapshot.youRequested ? "Rivincita chiesta" : "Rivincita"}
-            </Button>
-          </form>
-        )}
-        <Link
-          href="/games"
-          className="inline-flex min-h-12 items-center justify-center rounded-full border border-line px-5 font-semibold"
-        >
-          Torna ai giochi
-        </Link>
-      </div>
+        <div className="mt-5">
+          {snapshot.gameSlug === "tris" ? (
+            <TrisBoard
+              snapshot={snapshot}
+              action={moveAction}
+              pending={movePending}
+            />
+          ) : null}
+          {snapshot.gameSlug === "forza-4" ? (
+            <ConnectFourBoard
+              snapshot={snapshot}
+              action={moveAction}
+              pending={movePending}
+            />
+          ) : null}
+          {snapshot.gameSlug === "morra-cinese" ? (
+            <RpsBoard
+              snapshot={snapshot}
+              action={moveAction}
+              pending={movePending}
+            />
+          ) : null}
+          {snapshot.gameSlug === "reversi" ? (
+            <ReversiBoard snapshot={snapshot} action={moveAction} pending={movePending} />
+          ) : null}
+          {snapshot.gameSlug === "punti-quadrati" ? (
+            <DotsBoard snapshot={snapshot} action={moveAction} pending={movePending} />
+          ) : null}
+          {snapshot.gameSlug === "tre-pile" ? (
+            <NimBoard snapshot={snapshot} action={moveAction} pending={movePending} />
+          ) : null}
+          {snapshot.gameSlug === "dama" ? (
+            <DamaBoard snapshot={snapshot} action={moveAction} pending={movePending} />
+          ) : null}
+        </div>
+      </Cabinet>
       {snapshot.players.length > 1 ? <ReportForm matchId={snapshot.matchId} /> : null}
       {snapshot.status === "finished" && snapshot.opponentRequested && !snapshot.youRequested ? (
-        <p className="mt-3 text-sm text-muted">L&apos;altro giocatore vuole la rivincita.</p>
+        <p className="mt-3 text-center text-sm text-muted">L&apos;altro giocatore vuole la rivincita.</p>
       ) : null}
     </section>
   );
@@ -177,13 +250,13 @@ function TrisBoard({
   action: (payload: FormData) => void;
   pending: boolean;
 }) {
-  if (snapshot.gameSlug !== "tris" || !("board" in snapshot.state)) {
+  if (snapshot.gameSlug !== "tris" || !("winningLine" in snapshot.state)) {
     return null;
   }
   const state = snapshot.state;
   const mine = snapshot.yourSeat === state.turn && snapshot.status === "playing";
   return (
-    <form action={action} className="grid max-w-sm grid-cols-3 gap-3 rounded-3xl border border-line bg-[#0c1224] p-3">
+    <form action={action} className="mx-auto grid max-w-sm grid-cols-3 gap-3 rounded-3xl border border-[#1d4c63] bg-[#041018] p-3 shadow-[inset_0_0_24px_rgb(0_0_0_/_0.45)]">
       <input type="hidden" name="matchId" value={snapshot.matchId} />
       {state.board.map((cell, index) => {
         const winning = state.winningLine?.includes(index) ?? false;
@@ -195,7 +268,7 @@ function TrisBoard({
             value={index}
             disabled={!mine || cell !== null || pending}
             aria-label={`Riga ${Math.floor(index / 3) + 1}, colonna ${(index % 3) + 1}${cell ? `, ${cell}` : ", vuota"}`}
-            className={`flex aspect-square items-center justify-center rounded-2xl border focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:cursor-not-allowed ${winning ? "border-accent-2 bg-accent/30" : "border-line bg-card enabled:hover:border-accent-2"}`}
+            className={`flex aspect-square items-center justify-center rounded-2xl border transition-transform duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white enabled:hover:scale-[1.04] enabled:active:scale-95 disabled:cursor-not-allowed ${winning ? "play-win border-[#9ff7e4] bg-[#123044]" : "border-[#1d4c63] bg-[#0a1c2a] enabled:hover:border-[#9ff7e4]"}`}
           >
             <TicMark mark={cell} />
           </button>
@@ -220,55 +293,52 @@ function ConnectFourBoard({
   const state = snapshot.state;
   const mine = snapshot.yourSeat === state.turn && snapshot.status === "playing";
   return (
-    <div className="max-w-md rounded-3xl border border-line bg-[#16325c] p-3">
-      <form action={action} className="grid grid-cols-7 gap-2">
-        <input type="hidden" name="matchId" value={snapshot.matchId} />
-        {state.columns.map((column, index) => (
+    <form
+      action={action}
+      className="mx-auto grid max-w-md grid-cols-7 gap-2 overflow-hidden rounded-3xl border border-[#0a2748] bg-[#16325c] p-3 shadow-[inset_0_0_20px_rgb(0_0_0_/_0.35)]"
+    >
+      <input type="hidden" name="matchId" value={snapshot.matchId} />
+      {state.columns.map((column, index) => {
+        const full = column.every((cell) => cell !== null);
+        const playable = mine && !pending && !full;
+        const stacked = column
+          .map((cell) => (cell === "red" ? "Rosso" : cell === "yellow" ? "Giallo" : "vuota"))
+          .join(", ");
+        return (
           <button
             key={index}
             type="submit"
             name="column"
             value={index}
-            disabled={!mine || pending || column.every((cell) => cell !== null)}
-            aria-label={`Inserisci nella colonna ${index + 1}`}
-            className="flex min-h-11 items-center justify-center rounded-full disabled:cursor-not-allowed disabled:opacity-40"
+            disabled={!playable}
+            aria-label={`Inserisci nella colonna ${index + 1}. Dal basso: ${stacked}.`}
+            className="flex flex-col gap-2 rounded-2xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white enabled:cursor-pointer enabled:hover:bg-white/10 enabled:active:bg-white/15 disabled:cursor-not-allowed"
           >
-            <span className="block h-6 w-6">
-              <Disc
-                color={
-                  mine && !column.every((cell) => cell !== null) ? state.turn : null
-                }
-              />
+            <span className="flex h-8 items-center justify-center">
+              <span className={`block h-6 w-6 ${playable ? "" : "opacity-40"}`}>
+                <Disc color={playable ? state.turn : null} />
+              </span>
             </span>
+            {Array.from({ length: CONNECT_FOUR_ROWS }, (_, offset) => {
+              const row = CONNECT_FOUR_ROWS - 1 - offset;
+              const disc = column[row] ?? null;
+              const winning =
+                state.winningCells?.some(
+                  (cell) => cell.column === index && cell.row === row,
+                ) ?? false;
+              return (
+                <span
+                  key={row}
+                  className={`flex aspect-square items-center justify-center rounded-full ${winning ? "play-win bg-white/20" : ""}`}
+                >
+                  <Disc color={disc} drop={disc !== null} />
+                </span>
+              );
+            })}
           </button>
-        ))}
-      </form>
-      <div className="mt-2 grid grid-cols-7 gap-2">
-        {Array.from({ length: CONNECT_FOUR_ROWS }, (_, offset) => {
-          const row = CONNECT_FOUR_ROWS - 1 - offset;
-          return state.columns.map((column, columnIndex) => {
-            const disc = column[row] ?? null;
-            const winning =
-              state.winningCells?.some(
-                (cell) => cell.column === columnIndex && cell.row === row,
-              ) ?? false;
-            return (
-              <div
-                key={`${columnIndex}-${row}`}
-                aria-label={
-                  disc
-                    ? `${disc === "red" ? "Rosso" : "Giallo"}, riga ${row + 1}, colonna ${columnIndex + 1}`
-                    : `Vuota, riga ${row + 1}, colonna ${columnIndex + 1}`
-                }
-                className={`flex aspect-square items-center justify-center rounded-full ${winning ? "bg-white/20" : ""}`}
-              >
-                <Disc color={disc} />
-              </div>
-            );
-          });
-        })}
-      </div>
-    </div>
+        );
+      })}
+    </form>
   );
 }
 
@@ -289,24 +359,40 @@ function RpsBoard({
   const choosing = state.status === "choosing" && snapshot.status === "playing";
   return (
     <div>
-      <p className="text-muted">
-        Punteggio {state.scores.A} — {state.scores.B}. Al meglio di 3, primo a 2.
-        La mano dell&apos;altro resta nascosta finché non avete scelto entrambi.
-      </p>
+      <div className="arcade-score" aria-hidden="true">
+        <span>A {state.scores.A}</span>
+        <span>B {state.scores.B}</span>
+      </div>
       {state.lastRound ? (
-        <p className="mt-2 text-muted">
-          Ultimo round: {labelHand(state.lastRound.hands.A)} contro{" "}
-          {labelHand(state.lastRound.hands.B)}. Vince{" "}
-          {state.lastRound.winner === "draw"
-            ? "nessuno"
-            : nicknameForSeat(snapshot.players, state.lastRound.winner)}
-          .
-        </p>
+        <div className="arcade-round mt-3" aria-hidden="true">
+          <span className={state.lastRound.winner === "A" ? "arcade-round-win" : "inline-flex"}>
+            {state.lastRound.winner === "A" ? <CrownIcon /> : null}
+            {state.lastRound.hands.A ? (
+              <HandMark hand={state.lastRound.hands.A} />
+            ) : (
+              <TimerIcon />
+            )}
+          </span>
+          <span className="arcade-letter">{state.lastRound.winner === "draw" ? "=" : "·"}</span>
+          <span className={state.lastRound.winner === "B" ? "arcade-round-win" : "inline-flex"}>
+            {state.lastRound.winner === "B" ? <CrownIcon /> : null}
+            {state.lastRound.hands.B ? (
+              <HandMark hand={state.lastRound.hands.B} />
+            ) : (
+              <TimerIcon />
+            )}
+          </span>
+        </div>
       ) : null}
-      <p className="mt-3 font-semibold">
+      <p className="sr-only">
         {own ? `Hai scelto ${HAND_LABEL[own]}.` : "Non hai ancora scelto."}
       </p>
-      <form action={action} className="mt-4 flex flex-col gap-3 sm:flex-row">
+      {own ? (
+        <div className="arcade-hud mt-3" aria-hidden="true">
+          <HandMark hand={own} className="h-10 w-10" />
+        </div>
+      ) : null}
+      <form action={action} className="mt-4 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
         <input type="hidden" name="matchId" value={snapshot.matchId} />
         {RPS_HANDS.map((hand) => (
           <Button
@@ -314,16 +400,70 @@ function RpsBoard({
             type="submit"
             name="hand"
             value={hand}
+            data-hand={hand}
             disabled={!choosing || own !== null || pending}
-            className="min-w-28 flex-col gap-1 py-3"
+            aria-label={HAND_LABEL[hand]}
+            className="arcade-hand arcade-icon-btn"
           >
-            <HandMark hand={hand} />
-            {HAND_LABEL[hand]}
+            <HandMark hand={hand} className="h-16 w-16" />
           </Button>
         ))}
       </form>
+      <RpsGestureCredit />
     </div>
   );
+}
+
+function TurnPiece({ snapshot }: { snapshot: MatchSnapshot }) {
+  if (snapshot.result === "draw") {
+    return (
+      <div className="arcade-hud" aria-hidden="true">
+        <span className="arcade-letter">=</span>
+      </div>
+    );
+  }
+  if (snapshot.result !== "playing" && snapshot.winnerSeat) {
+    return (
+      <div className="arcade-hud" aria-hidden="true">
+        <CrownIcon />
+        <SeatPiece seat={snapshot.winnerSeat} />
+      </div>
+    );
+  }
+  const turn = "turn" in snapshot.state ? snapshot.state.turn : null;
+  if (!turn) {
+    return null;
+  }
+  return (
+    <div className="arcade-hud" aria-hidden="true">
+      <SeatPiece seat={turn} />
+    </div>
+  );
+}
+
+function SeatPiece({ seat }: { seat: string }) {
+  if (seat === "X" || seat === "O") {
+    return (
+      <span className="arcade-hud-piece">
+        <TicMark mark={seat} className="play-mark h-full w-full" />
+      </span>
+    );
+  }
+  if (seat === "red" || seat === "yellow") {
+    return (
+      <span className="arcade-hud-piece">
+        <Disc color={seat} />
+      </span>
+    );
+  }
+  if (seat === "black" || seat === "white") {
+    return (
+      <span className="arcade-hud-piece">
+        <span className={`block h-[78%] w-[78%] rounded-full ${seat === "black" ? "bg-[#111]" : "bg-[#f4f7fb]"}`} />
+      </span>
+    );
+  }
+  return <span className="arcade-letter">{seat}</span>;
 }
 
 function headline(snapshot: MatchSnapshot): string {
@@ -345,10 +485,6 @@ function headline(snapshot: MatchSnapshot): string {
   }
   const turn = "turn" in snapshot.state ? snapshot.state.turn : snapshot.yourSeat;
   return `Tocca a ${nicknameForSeat(snapshot.players, turn)} (${SEAT_LABEL[turn] ?? turn}).`;
-}
-
-function labelHand(hand: RpsHand | null): string {
-  return hand ? HAND_LABEL[hand] : "nessuna scelta";
 }
 
 function firstNotice(...results: Array<MatchResult | null>): string | null {

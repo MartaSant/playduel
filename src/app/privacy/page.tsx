@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { Cabinet } from "@/components/games/cabinet";
+import { CoinIcon } from "@/components/games/icons";
 import { ProvisionalNote } from "@/components/layout/provisional-note";
 
 export const metadata: Metadata = {
@@ -8,12 +10,18 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <main className="mx-auto w-full max-w-2xl px-4 py-10 sm:py-16">
-      <h1 className="text-3xl font-semibold tracking-tight">Privacy</h1>
-      <div className="mt-6">
-        <ProvisionalNote />
-      </div>
-      <div className="mt-8 space-y-4 leading-7 text-muted">
+    <main className="mx-auto w-full max-w-5xl px-4 py-10 sm:py-16">
+      <Cabinet
+        title="Privacy"
+        kicker={
+          <>
+            <span className="sr-only">Informativa</span>
+            <CoinIcon />
+          </>
+        }
+      >
+      <ProvisionalNote />
+      <div className="arcade-copy mt-4">
         <p>
           Il gioco usa una sessione anonima di Supabase e un nickname di 3–20
           caratteri. Non chiede email né password ai giocatori. L&apos;account
@@ -39,6 +47,7 @@ export default function PrivacyPage() {
           giorni. Manca ancora il nome del responsabile e una revisione legale.
         </p>
       </div>
+      </Cabinet>
     </main>
   );
 }

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { SiteHeader } from "@/components/layout/site-header";
+import { SiteShell } from "@/components/layout/site-shell";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -35,10 +35,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         >
           Vai al contenuto
         </a>
-        <SiteHeader />
-        <div id="contenuto" className="flex flex-1 flex-col">
-          {children}
-        </div>
+        <SiteShell>{children}</SiteShell>
       </body>
     </html>
   );
