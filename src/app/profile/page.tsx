@@ -1,0 +1,90 @@
+import type { Metadata } from "next";
+import { Suspense } from "react";
+import { NicknameForm } from "@/components/players/nickname-form";
+import { safeRoomNext } from "@/lib/rooms/rules";
+import { getSupabasePublicEnv } from "@/lib/supabase/env";
+import { readOwnProfile } from "@/server/services/profile";
+
+export const metadata: Metadata = {
+  title: "Profilo",
+  description: "Nickname temporaneo collegato a una sessione anonima.",
+};
+
+export default function ProfilePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string | string[] }>;
+}) {
+  const configured = getSupabasePublicEnv() !== null;
+
+  return (
+    <main className="mx-auto w-full max-w-5xl px-4 py-10 sm:py-16">
+      <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
+        Profilo temporaneo
+      </h1>
+      <p className="mt-4 max-w-2xl text-lg leading-8 text-muted">
+        Nessuna registrazione con email e password. La sessione anonima non
+        dimostra l&apos;identità di una persona. Puoi cambiare nickname: non
+        conserviamo lo storico.
+      </p>
+      <Suspense
+        fallback={
+          <p role="status" className="mt-6 text-muted">
+            Caricamento profilo…
+          </p>
+        }
+      >
+        {configured ? (
+          <ConfiguredProfile searchParams={searchParams} />
+        ) : (
+          <PlainProfile searchParams={searchParams} />
+        )}
+      </Suspense>
+    </main>
+  );
+}
+
+async function PlainProfile({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string | string[] }>;
+}) {
+  const { next } = await searchParams;
+  return (
+    <NicknameForm
+      nickname=""
+      configured={false}
+      next={safeNext(next)}
+    />
+  );
+}
+
+async function ConfiguredProfile({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string | string[] }>;
+}) {
+  const [{ next }, profile] = await Promise.all([
+    searchParams,
+    readOwnProfile(),
+  ]);
+  return (
+    <>
+      {profile.unavailable ? (
+        <p role="alert" className="mt-6 max-w-2xl text-muted">
+          La sessione c&apos;è, ma il profilo non è leggibile. Applica la
+          migrazione dei giocatori prima di salvarlo.
+        </p>
+      ) : null}
+      <NicknameForm
+        nickname={profile.nickname ?? ""}
+        configured
+        next={safeNext(next)}
+      />
+    </>
+  );
+}
+
+function safeNext(value: string | string[] | undefined): string {
+  return safeRoomNext(value) ?? "";
+}
