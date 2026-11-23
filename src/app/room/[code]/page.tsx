@@ -81,9 +81,9 @@ async function RoomScreen({
     match && !match.ok && match.reason !== "not_ready" ? match : null;
 
   return (
-    <main className="mx-auto w-full max-w-5xl px-4 py-10 sm:py-16">
+    <main className="mx-auto w-full max-w-6xl px-4 py-10 sm:py-16">
       {board ? (
-        <>
+        <div className="match-layout">
           <ScrollToMatch matchId={board.matchId}>
             <MatchPanel
               key={`${board.matchId}-${board.version}`}
@@ -92,7 +92,7 @@ async function RoomScreen({
             />
           </ScrollToMatch>
           <MatchChat matchId={board.matchId} />
-        </>
+        </div>
       ) : (
         <Cabinet
           title={game?.name ?? "Stanza"}

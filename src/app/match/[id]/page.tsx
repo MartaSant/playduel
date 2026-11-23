@@ -63,9 +63,11 @@ async function MatchScreen({
   }
 
   return (
-    <main className="mx-auto w-full max-w-5xl px-4 py-10 sm:py-16">
-      <MatchPanel key={`${match.matchId}-${match.version}`} snapshot={match} />
-      <MatchChat matchId={match.matchId} />
+    <main className="mx-auto w-full max-w-6xl px-4 py-10 sm:py-16">
+      <div className="match-layout">
+        <MatchPanel key={`${match.matchId}-${match.version}`} snapshot={match} />
+        <MatchChat matchId={match.matchId} />
+      </div>
     </main>
   );
 }

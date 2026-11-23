@@ -103,6 +103,21 @@ export function ExitIcon() {
   );
 }
 
+export function FlagIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="arcade-svg" aria-hidden="true">
+      <path
+        d="M6 4v16M6 5h11l-2.2 3.5L17 12H6"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 export function SignalIcon() {
   return (
     <svg viewBox="0 0 24 24" className="arcade-svg" aria-hidden="true">

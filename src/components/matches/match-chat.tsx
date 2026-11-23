@@ -66,7 +66,7 @@ export function MatchChat({ matchId }: { matchId: string }) {
   const alert = sent && !sent.ok ? CHAT_MESSAGE[sent.reason] : readError;
 
   return (
-    <section className="arcade-note mx-auto mt-4 max-w-xl" aria-label="Chat">
+    <section className="arcade-note match-chat" aria-label="Chat">
       <h2 className="text-sm font-semibold">Chat</h2>
       <ul ref={listRef} className="arcade-chat" aria-live="polite">
         {messages.map((message) => (

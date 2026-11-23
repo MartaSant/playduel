@@ -122,7 +122,7 @@ export function MatchPanel({
   const notice = firstNotice(move, rematch, abandoned);
 
   return (
-    <section className="arcade-stage mt-8">
+    <section className="arcade-stage">
       <Cabinet
         title={GAME_TITLE[snapshot.gameSlug]}
         kicker={
@@ -163,6 +163,7 @@ export function MatchPanel({
                 </Button>
               </form>
             )}
+            {snapshot.players.length > 1 ? <ReportForm matchId={snapshot.matchId} /> : null}
             <Link
               href="/games"
               aria-label="Torna ai giochi"
@@ -233,7 +234,6 @@ export function MatchPanel({
           ) : null}
         </div>
       </Cabinet>
-      {snapshot.players.length > 1 ? <ReportForm matchId={snapshot.matchId} /> : null}
       {snapshot.status === "finished" && snapshot.opponentRequested && !snapshot.youRequested ? (
         <p className="mt-3 text-center text-sm text-muted">L&apos;altro giocatore vuole la rivincita.</p>
       ) : null}

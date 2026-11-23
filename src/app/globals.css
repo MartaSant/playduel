@@ -382,6 +382,64 @@ body {
   color: #d8fff6;
 }
 
+.match-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.match-chat {
+  display: flex;
+  flex-direction: column;
+  max-width: none;
+  margin: 0;
+  min-height: 22rem;
+}
+
+.match-chat form {
+  margin-top: auto;
+}
+
+.arcade-report {
+  position: relative;
+}
+
+.arcade-report-panel {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 10px);
+  z-index: 5;
+  display: flex;
+  width: 16rem;
+  flex-direction: column;
+  gap: 0.6rem;
+  border-radius: 16px;
+  border: 1px solid #3a3128;
+  background: #14110f;
+  padding: 12px;
+  color: #d8fff6;
+}
+
+@media (min-width: 64rem) {
+  .match-layout {
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: center;
+  }
+
+  .match-layout > :first-child {
+    flex: 1 1 40rem;
+    min-width: 0;
+    max-width: 40rem;
+  }
+
+  .match-chat {
+    flex: 0 0 18.5rem;
+    height: auto;
+  }
+}
+
 .arcade-chat {
   display: flex;
   flex-direction: column;
@@ -393,6 +451,16 @@ body {
 
 .arcade-chat:empty {
   display: none;
+}
+
+.match-chat .arcade-chat {
+  flex: 1;
+  min-height: 12rem;
+  max-height: none;
+}
+
+.match-chat .arcade-chat:empty {
+  display: flex;
 }
 
 .arcade-chat li {
